@@ -1,2 +1,2 @@
 # hcutprogs
-Downloadable content for hcut package manager
+Downloadable content for Hacking-Utils package manager
