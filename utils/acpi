@@ -6,9 +6,8 @@ Written by Darth Venom and Tobi Emotic
 < = >
 '
 if [ $1 -z ]; then
-	x=`cat /sys/class/power_supply/BAT0/capacity`;
-	echo "$x%";
+	printf "$(cat /sys/class/power_supply/BAT0/capacity)%%\n";
 	exit;
 else
-	echo This program does not take any argument.;
+	printf "This program does not take any argument.\n";
 fi
