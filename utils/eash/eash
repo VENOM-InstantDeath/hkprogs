@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+:'
+Eash
+Written by Darth Venom
+< = >
+'
+
+cd $(dirname $0)
