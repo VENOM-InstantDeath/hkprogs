@@ -1,9 +1,122 @@
 #!/usr/bin/env bash
 
-:'
-Eash
-Written by Darth Venom
-< = >
+: '
+		Eash
+	Written by Darth Venom
+		< = >
 '
+echo;
 
-cd $(dirname $0)
+#colores
+red="\033[1;31m";
+green="\033[1;32m";
+yellow="\033[1;33m";
+blue="\033[1;34m";
+purple="\033[1;35m";
+light="\033[1;36m";
+white="\033[1;37m";
+nml="\033[0m";
+
+#link al directorio inter en Github.
+inter="https://raw.githubusercontent.com/VENOM-InstantDeath/hkprogs/develop/utils/eash/inter"
+
+if [ $PWD != $(dirname $0) ]; then
+
+	printf "$red""Cambiando directorio a $(dirname $0)..""$nml\n";
+	cd $(dirname $0);
+
+fi
+
+######################################Fase de Chequeo######################################
+
+######################################Chequeo de dependencias##############################
+
+deparr=(0 0 0 0)
+printf "Chequeando dependencias...\n"
+which python3 &> /dev/null
+deparr[0]=$?
+which git &> /dev/null
+deparr[1]=$?
+which figlet &> /dev/null
+deparr[2]=$?
+which wget &> /dev/null
+deparr[3]=$?
+
+if [ ${deparr[0]} -ne 0 ]; then printf "$red""El programa python no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml\n";exit;else printf "python encontrado.\n";fi
+
+if [ ${deparr[1]} -ne 0 ]; then printf "$red""El programa git no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml";exit;else printf "git encontrado.\n";fi
+
+if [ ${deparr[2]} -ne 0 ]; then printf "$red""El programa figlet no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml";exit;else printf "figlet encontrado.\n";fi
+
+if [ ${deparr[3]} -ne 0 ]; then printf "$red""El programa wget no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml";exit;else printf "wget encontrado.\n";fi
+
+############################################################################################
+
+#########################################Chequeo de archivos################################
+
+if [ -d inter ]; then
+
+	cd inter
+	#chequeo de archivos en inter
+	printf "$red""Entrando en inter.""$nml\n"
+	#chequea si existe index
+
+else
+
+	printf "\n$red""La carpeta inter no existe y es esencial para el funcionamiento de Eash. Para continuar usando Eash es necesario descargar la carpeta inter, el peso aproximado es de Xmb\n""$nml";
+	printf "¿Desea descargarla?(y/n) ";
+
+	STOP=false
+
+	while ! $STOP; do
+
+		read choice;
+
+		if [ "$choice" == "y" ]; then
+
+			echo;echo;
+
+			mkdir inter
+			printf "Directorio inter creado.\n"
+			printf "$red""Entrando en inter.""$nml\n"
+			cd inter
+			printf "Obteniendo lista de archivos...\n"
+			
+			#Obtener lista de archivos
+			wget $inter/index &> /dev/null
+
+			#Reintentar obtener lista de archivos si es que falla.
+			if [ "$?" -ne 0 ]; then 
+
+				printf "Error, reintentando...\n";
+				sleep 5;
+				wget $inter/index &> /dev/null;
+
+				#Si falla al reintentar, sale.
+				if [ "$?" -ne 0 ]; then
+
+					printf "$red""Error al obtener la lista de archivos, saliendo...""$nml\n";
+
+				fi
+			fi
+
+			for i in $(cat index); do
+				printf "Descargando $i\n"
+				wget $inter/$i &> /dev/null;
+			done
+
+			printf "Archivos descargados.\n"
+
+			break
+
+		elif [ "$choice" == "n" ]; then
+
+			printf "La carpeta es necesaria. Saliendo...\n"
+			exit
+
+		fi
+	done
+fi
+#############################################################################################
+
+#############################################################################################
