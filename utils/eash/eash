@@ -54,6 +54,8 @@ if [ ${deparr[3]} -ne 0 ]; then printf "$red""El programa wget no está instalad
 
 #########################################Chequeo de archivos################################
 
+printf "Chequeando archivos...\n"
+
 if [ -d inter ]; then
 
 	cd inter
@@ -66,9 +68,7 @@ else
 	printf "\n$red""La carpeta inter no existe y es esencial para el funcionamiento de Eash. Para continuar usando Eash es necesario descargar la carpeta inter, el peso aproximado es de Xmb\n""$nml";
 	printf "¿Desea descargarla?(y/n) ";
 
-	STOP=false
-
-	while ! $STOP; do
+	while true; do
 
 		read choice;
 
@@ -117,6 +117,93 @@ else
 		fi
 	done
 fi
+
+while true; do
+if [ -f "index" ]; then
+	for i in $(cat index); do
+		find "$i" &> /dev/null
+		if [ "$?" -ne 0 ]; then
+
+			printf "$red""Faltan archivos importantes, el programa no puede continuar.""$nml\n"
+			printf "¿Deseas descargar los archivos faltantes? (y/n) "
+
+			while true; do
+				read choice;
+				if [ "$choice" == "y" ]; then
+					for i in $(cat index); do
+						find "$i" &> /dev/null
+						if [ "$?" -ne 0 ]; then
+							printf "Falta $i"". Descargando...\n"
+							wget $inter/$i &> /dev/null
+						fi
+					done
+					printf "Descarga de archivos terminada.\n"
+
+					break
+				elif [ "$choice" == "n" ];then
+					printf "Faltan archivos importantes. Saliendo...\n"
+					exit
+				fi
+			done
+			break
+		else
+			printf "$i encontrado.\n"
+		fi
+	done
+	break
+else
+	printf "$red""El archivo index no existe""$nml\n"
+	printf "¿Deseas descargarlo? (y/n) "
+	while true; do
+		read choice;
+		if [ "$choice" == "y" ]; then
+			wget $inter/index;
+			break
+		elif [ "$choice" == "n" ]; then
+			printf "Falta el archivo index, no puede realizarse la comprobación. Saliendo...\n"
+			exit
+		fi
+	done
+	continue
+fi
+done
+printf "Chequeo de archivos concluido.\n"
 #############################################################################################
 
-#############################################################################################
+###################################Chequeo de configuración##################################
+
+printf "Chequeando configuración.\n"
+pcd=$PWD
+conf=0
+
+while true; do
+
+	if [ conf == 1 ]; then
+		printf "Ajustes no encontrados, procediendo...";
+		conf = 0
+	fi
+
+	if [ "$(cat home)" == null ]; then
+		printf "No se ha configurado la variable HOME para eash.\n"
+		printf "Chequeando que el usuario no sea root...\n"
+		if [ $EUID == 0 ]; then
+			printf "No se puede completar la configuración de HOME porque el usuario es root. Saliendo...\n"
+			cd ..;sudo rm -rf inter
+			exit
+		fi
+		printf "declarando HOME como $HOME\n";
+		echo $HOME > home
+		continue
+	fi
+	home=$(cat home)
+	cd $home/.config
+	
+	if [ ! -d eash ]; then
+		conf=1
+		continue
+	fi
+	cd eash
+	#########COMPROBACION DE ARCHIVOS DE CONFIGURACION##########
+
+	break
+done
