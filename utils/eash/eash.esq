@@ -1,18 +1,30 @@
-Eash es un programa orientado a la gente que desea comenzar a familiarizarse en entornos Unix o aprender programación.
+eash es un programa orientado a la gente que desea comenzar a familiarizarse en entornos Unix o aprender programación.
 
-Eash chequea en el directorio contenedor si existe la carpeta inter, si existe, entonces busca el archivo home, si el contenido es 'null', entonces salta a la configuración, sino continúa, si el archivo home no existe, entonces se notifica al usuario y se advierte*, si la carpeta inter no existe, entonces el programa pregunta si desea descargar inter.
+=============================
 
+Si existe .config, revisa si existe eash, si existe eash, entra en la carpeta, si existen los archivos de configuración, chequea el contenido en busca de variables. Si no existe .config, se crea la carpeta, se entra y se saltea a configuración.
 
-*Se advierte que falta el archivo home y se pregunta si quiere crear el archivo, comprobar la existencia de todos los archivos o salir.
-Si el archivo home tiene que crearse, no puede ser un superusuario. Se chequean los demás archivos de configuración para deducir si hay que configurar o sólo reparar.
-Si hay archivos perdidos que no pueden ser recuperados, se consulta al usuario si desea descargarlos y se advierte que de lo contario faltará contenido.
-Los archivos se descargan desde hkprogs/utils/eash/inter/
+.
+|
+|__eash
+|  |
+|  |__eash*
+|  |
+|  |__inter
+|     |
+|     |__home
+|     |
+|     |__index
+|
+|_.config
+  |
+  |__eash
+     |
+     |__config
+     |
+     |__lvl
 
+config = "pack manager"
+	 "distribution"
 
-Si el contenido de home no es null, entonces se almacena en la variable HOME
-
-Cambia directorio a $HOME y revisa si existe .config, si existe cambia el directorio, sino crea la carpeta cambia directorio, crea la carpeta eash y salta a configuración.
-
-Si existe .config, revisa si existe eash, si existe eash, entra en la carpeta, si existen los archivos de configuración, chequea el contenido en busca de variables.
-
-
+lvl    = "."

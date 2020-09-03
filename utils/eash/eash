@@ -31,24 +31,29 @@ fi
 
 ######################################Chequeo de dependencias##############################
 
-deparr=(0 0 0 0)
+deparr=(0 0 0 0 0)
 printf "Chequeando dependencias...\n"
-which python3 &> /dev/null
+which ls &> /dev/null
 deparr[0]=$?
-which git &> /dev/null
+which python3 &> /dev/null
 deparr[1]=$?
-which figlet &> /dev/null
+which git &> /dev/null
 deparr[2]=$?
-which wget &> /dev/null
+which figlet &> /dev/null
 deparr[3]=$?
+which wget &> /dev/null
+deparr[4]=$?
 
-if [ ${deparr[0]} -ne 0 ]; then printf "$red""El programa python no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml\n";exit;else printf "python encontrado.\n";fi
+if [ ${deparr[0]} -ne 0 ]; then printf "$red""El programa which no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml\n";exit;else printf "which encontrado.\n";fi
 
-if [ ${deparr[1]} -ne 0 ]; then printf "$red""El programa git no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml";exit;else printf "git encontrado.\n";fi
+if [ ${deparr[1]} -ne 0 ]; then printf "$red""El programa python no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml";exit;else printf "python encontrado.\n";fi
 
-if [ ${deparr[2]} -ne 0 ]; then printf "$red""El programa figlet no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml";exit;else printf "figlet encontrado.\n";fi
+if [ ${deparr[2]} -ne 0 ]; then printf "$red""El programa git no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml";exit;else printf "git encontrado.\n";fi
 
-if [ ${deparr[3]} -ne 0 ]; then printf "$red""El programa wget no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml";exit;else printf "wget encontrado.\n";fi
+if [ ${deparr[3]} -ne 0 ]; then printf "$red""El programa figlet no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml";exit;else printf "figlet encontrado.\n";fi
+
+if [ ${deparr[4]} -ne 0 ]; then printf "$red""El programa wget no está instalado y es necesario. Reinstala y vuelve a ejecutar.""$nml";exit;else printf "wget encontrado.\n";fi
+
 
 ############################################################################################
 
@@ -175,14 +180,89 @@ printf "Chequeo de archivos concluido.\n"
 printf "Chequeando configuración.\n"
 pcd=$PWD
 conf=0
-
+OS="null"
+pack="null"
+pwd
 while true; do
 
-	if [ conf == 1 ]; then
-		printf "Ajustes no encontrados, procediendo...";
-		conf = 0
+	if [ $conf == 1 ]; then
+		printf "Ajustes no encontrados, procediendo...\n";
+		#deteccion del sistema
+		printf "Intentando detectar el sistema.\n";
+		hostnamectl | grep Arch &> /dev/null;if [ "$?" == 0 ]; then OS="Arch";fi
+		hostnamectl | grep Debian &> /dev/null;if [ "$?" == 0 ]; then OS="Debian";fi
+		hostnamectl | grep Ubuntu &> /dev/null;if [ "$?" == 0 ]; then OS="Ubuntu";fi
+		hostnamectl | grep Mint &> /dev/null; if [ "$?" == 0 ]; then OS="Mint";fi
+		hostnamectl | grep Manjaro &> /dev/null; if [ "$?" == 0 ]; then OS="Manjaro";fi
+		hostnamectl | grep SUSE &> /dev/null; if [ "$?" == 0 ]; then OS="SUSE";fi
+		#hostnamectl | grep Gentoo &> /dev/null; if [ "$?" == 0 ]; then OS="Gentoo";fi
+		#hostnamectl | grep Slackware &> /dev/null; if [ "$?" == 0 ]; then OS="Slackware";fi
+		hostnamectl | grep Arco &> /dev/null; if [ "$?" == 0 ]; then OS="Arco";fi
+		hostnamectl | grep Fedora &> /dev/null; if [ "$?" == 0 ]; then OS="Fedora";fi
+		hostnamectl | grep Kali &> /dev/null; if [ "$?" == 0 ]; then OS="Kali";fi
+		hostnamectl | grep Parrot &> /dev/null; if [ "$?" == 0 ]; then OS="Parrot";fi
+		hostnamectl &> /dev/null;
+		if [ "$?" -ne 0 ]; then
+			uname -a | grep Android &> /dev/null;
+			if [ "$?" == 0 ]; then
+				OS="Android"
+				printf "Sistema $OS detectado.\n"
+				printf "Intentando determinar gestor de paquetes.\n"
+				which pkg &> /dev/null;
+				if [ "$?" == 0 ]; then 
+					pack="pkg";
+					printf "Gestor $pack detectado\n";
+				else 
+					pack="apt";
+					printf "Gestor $pack detectado\n";
+				fi
+			fi
+		fi
+		if [[ ! "$OS" == "Android" && ! "$OS" == "null" ]]; then
+			printf "Sistema $OS detectado.\n";
+			printf "Intentando determinar gestor de paquetes.\n";
+			case $OS in
+			"Arch" | "Manjaro" | "Arco")
+				pack="pacman"
+			;;
+			"Ubuntu" | "Debian" | "Mint" | "Kali" | "Parrot")
+				pack="apt"
+			;;
+			"Fedora")
+				which yum &> /dev/null
+				if [ $? == 0 ]; then pack="yum"; else pack="dnf";fi
+			;;
+			"SUSE")
+				pack="zypper"
+			;;
+			esac
+			printf "Gestor $pack detectado.\n"
+		fi
+		if [ "$OS" == "null" ]; then
+			while true; do
+				printf "No se ha podido detectar el sistema ni el gestor de paquetes.\n"
+				printf "Si deseas continuar, especifica el gestor de paquetes: "
+				read pack;
+				which $pack &> /dev/null;
+				if [ "$?" == 0 ]; then
+					printf "Gestor $pack detectado\n";
+					break;
+				else
+					printf "Gestor $pack no encontrado.\n"
+					continue;
+				fi
+			done
+		fi
+		printf "Escribiendo datos en archivos de configuracion.\n";
+		cd eash
+		echo "$OS" > config;
+		echo "$pack" >> config;
+		touch lvl;
+		cd ..
+		conf=0
+		continue
 	fi
-
+	cd $pcd
 	if [ "$(cat home)" == null ]; then
 		printf "No se ha configurado la variable HOME para eash.\n"
 		printf "Chequeando que el usuario no sea root...\n"
@@ -196,14 +276,20 @@ while true; do
 		continue
 	fi
 	home=$(cat home)
+	cd $home
+	if [ ! -d .config ]; then
+		mkdir .config;
+	fi
+
 	cd $home/.config
 	
 	if [ ! -d eash ]; then
+		mkdir eash
 		conf=1
 		continue
 	fi
 	cd eash
 	#########COMPROBACION DE ARCHIVOS DE CONFIGURACION##########
-
+	printf "$green""Finished Test.""$nml\n"
 	break
 done
