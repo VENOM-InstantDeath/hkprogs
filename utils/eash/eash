@@ -189,8 +189,8 @@ while true; do
 		printf "Ajustes no encontrados, procediendo...\n";
 		#deteccion del sistema
 		printf "Intentando detectar el sistema.\n";
-		which hostnamectl &> /dev/null; if [ $? -ne 0 ]; then omit=true; else omit=false;fi
-		if [ $omit == true ]; then
+		which hostnamectl &> /dev/null; if [ $? -ne 0 ]; then omit=1; else omit=0;fi
+		if [ $omit == 0 ]; then
 			hostnamectl | grep Arch &> /dev/null;if [ "$?" == 0 ]; then OS="Arch";fi
 			hostnamectl | grep Debian &> /dev/null;if [ "$?" == 0 ]; then OS="Debian";fi
 			hostnamectl | grep Ubuntu &> /dev/null;if [ "$?" == 0 ]; then OS="Ubuntu";fi
@@ -206,7 +206,7 @@ while true; do
 		fi
 		#hostnamectl &> /dev/null;
 		#if [ "$?" -ne 0 ]; then
-		if [ "$omit" == false ]; then
+		if [ "$omit" == 1 ]; then
 			uname -a | grep Android &> /dev/null;
 			if [ "$?" == 0 ]; then
 				OS="Android"
