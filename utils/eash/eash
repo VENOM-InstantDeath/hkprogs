@@ -182,7 +182,6 @@ pcd=$PWD
 conf=0
 OS="null"
 pack="null"
-pwd
 while true; do
 
 	if [ $conf == 1 ]; then
@@ -222,6 +221,7 @@ while true; do
 				fi
 			fi
 		fi
+		unset omit
 		if [[ ! "$OS" == "Android" && ! "$OS" == "null" ]]; then
 			printf "Sistema $OS detectado.\n";
 			printf "Intentando determinar gestor de paquetes.\n";
@@ -261,7 +261,6 @@ while true; do
 		cd eash
 		echo "$OS" > config;
 		echo "$pack" >> config;
-		touch lvl;
 		cd ..
 		conf=0
 		continue
@@ -294,6 +293,27 @@ while true; do
 	fi
 	cd eash
 	#########COMPROBACION DE ARCHIVOS DE CONFIGURACION##########
-	printf "$green""Finished Test.""$nml\n"
+	if [ ! -f config ];then
+		printf "Falta el archivo config.\n"
+		conf=1
+		cd $home/.config
+		continue
+	fi
+	if [ ! -f lvl ]; then
+		echo null > lvl;
+		printf "Archivo lvl creado.\n";
+	fi
+	#Cargar el archivo config en los primeros dos espacios del array stat
+	stat=("null" "null" "null")
+	x=0
+	for i in $(cat config); do
+		stat[$x]=$i
+		x=$[x + 1]
+	done
+	unset x
+	#Cargar el contenido de lvl en el último espacio del array stat
+	stat[2]=$(cat lvl)
+	echo "Configuracion cargada. Valores: ${stat[@]}"
+	printf "$green""Finished Test.""$nml\n";
 	break
 done
