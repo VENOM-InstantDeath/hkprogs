@@ -1,0 +1,21 @@
+{
+    "packs": [
+        {
+            "light": {
+                "vars": [
+                    "bash",
+                    "sh"
+                ],
+                "local": "utils/"
+            },
+            "acpi": {
+                "vars": "",
+                "local": "utils/"
+            },
+            "eash": {
+                "vars": "",
+                "local": "utils/eash/"
+            }
+        }
+    ]
+}
