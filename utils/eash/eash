@@ -18,7 +18,7 @@ white="\033[1;37m";
 nml="\033[0m";
 
 #link al directorio inter en Github.
-inter="https://raw.githubusercontent.com/VENOM-InstantDeath/hkprogs/develop/utils/eash/inter"
+inter="https://raw.githubusercontent.com/VENOM-InstantDeath/hkprogs/master/utils/eash/inter"
 
 if [ $PWD != $(dirname $0) ]; then
 
