@@ -15,6 +15,10 @@
             "eash": {
                 "vars": "",
                 "local": "utils/eash/"
+            },
+            "darth": {
+                "vars": "",
+                "local": "utils/"
             }
         }
     ]
