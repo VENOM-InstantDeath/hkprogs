@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+
+import socket
+import os
+from time import sleep
+
+
+class Conn:
+    def __init__(self):
+        self.status = bool()
+        self.msg = str()
+        self.ip = '127.0.0.1'
+        self.port = 65432
+        self.consock = (self.ip, self.port)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    def reset(self):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    def disconnect(self):
+        self.sock.shutdown(socket.SHUT_RDWR)
+        self.sock.close()
+
+    def connect(self):
+        # Client side
+        self.sock.connect(self.consock)
+
+    def recv(self):
+        self.msg = self.sock.recv(1024)
+        return self.msg
+
+
+# Colores
+red = "\033[1;31m"
+green = "\033[1;32m"
+yellow = "\033[1;33m"
+blue = "\033[1;34m"
+purple = "\033[1;35m"
+light = "\033[1;36m"
+white = "\033[1;37m"
+nml = "\033[0m"
+
+while True:
+    #  ############################### Intento de conexión al server ################################
+    Con = Conn()
+    login = False
+    try:
+        Con.connect()
+        Con.status = True
+    except ConnectionRefusedError:
+        Con.status = False
+
+    # Si no hay sesión iniciada ni conexión al server.
+    if not ("loggedin" in os.listdir()) and not Con.status:
+        print("No se puede iniciar sesión porque no se puede conectar al servidor.")
+        exit()
+
+    # Si hay sesión iniciada.
+    if "loggedin" in os.listdir():
+        Con.sock.send(b"pa")
+        login = True
+
+    # Si no hay sesión iniciada pero hay conexión al server.
+    if not login and Con.status:
+        #  ############################### Inicio de sesión ################################
+        Con.sock.send(b"lo")
+        Con.recv()
+        if Con.msg == b"n-n":
+            #  ############################### Registro ################################
+            name = input("Configura un nuevo nombre de usuario: ")
+            Con.sock.send(bytes(name, "utf-8"))
+            Con.recv()
+            while True:
+                pas = input("Configura una nueva contraseña: ")
+                passw = input("Repite la contraseña: ")
+                if not pas == passw:
+                    continue
+                break
+            Con.sock.send(bytes(passw, "utf-8"))
+            Con.recv()
+            if Con.msg == b"1":
+                login = True
+                TE = open("loggedin", "w+")
+                TE.close()
+                del TE
+                print("Registro completado exitosamente.")
+            else:
+                print("El registro no pudo completarse. Saliendo")
+                exit()
+
+        if Con.msg == b"n":
+            # ############################### Usuario existente ################################
+            while True:
+                name = input("Nombre de usuario: ")
+                Con.sock.send(bytes(name, "utf-8"))
+                Con.recv()
+                if Con.msg == b"1":
+                    passw = input("Contraseña: ")
+                    Con.sock.send(bytes(passw, "utf-8"))
+                    Con.recv()
+                    if Con.msg == b"1":
+                        login = True
+                        TE = open("loggedin", "w+")
+                        TE.close()
+                        del TE
+                        print("Inicio de sesión exitoso.")
+                        break
+                    else:
+                        print("Contraseña incorrecta. Reintentando.\n")
+                        continue
+                else:
+                    print("Usuario inexistente.")
+                    continue
+    print("Welcome!")
+    sleep(2)
+    while True:
+        # ############################### Home ################################
+        os.system("clear")
+        print("\t\tDarth's Vault")
+        print("\n[1]Dinero\n[2]Contraseñas\n\n")
+        opt = input(">> ")
+        Con.sock.send(bytes(opt, "utf-8"))
+        Con.recv()
+        if Con.msg == b"0":
+            print("Opción inexistente.")
+            sleep(2)
+            continue
+
+        if opt == "1":
+            # ############################### Sección Dinero ################################
+            os.system("clear")
+            print("\t\tDinero")
+            Con.sock.send(b"propio")
+            propio = Con.recv()
+            Con.sock.send(b"reservado")
+            reservado = Con.recv()
+            print("\nDinero en mano: {}{}{}".format(green, int(propio), nml))
+            print("Dinero reservado: {}{}{}".format(red, int(reservado), nml))
+            print("\n[1]exit")
+            while True:
+                opt = input(">> ")
+                if opt == "1":
+                    Con.sock.send(b"break")
+                    break
+            continue

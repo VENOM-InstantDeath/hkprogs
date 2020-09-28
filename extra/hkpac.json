@@ -16,10 +16,14 @@
                 "vars": "",
                 "local": "utils/eash/"
             },
-            "darth": {
+            "client": {
                 "vars": "",
                 "local": "utils/"
-            }
+            },
+	    "server": {
+		"vars": "",
+		"local": "utils/"
+	    }
         }
     ]
 }
