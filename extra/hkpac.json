@@ -23,6 +23,10 @@
 	    "server": {
 		"vars": "",
 		"local": "utils/"
+	    },
+	    "amino": {
+		"vars": "",
+		"local": "utils/amino/"
 	    }
         }
     ]
