@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+
+#hkpac - Modificador de hkpac.json
+#Escrito por Darth Venom.
+#< = >
+
+import os
+import json
+from time import sleep
+
+os.chdir("hkprogs/extra/")
+
+F = open("hkpac.json","r+")
+
+data = json.load(F)
+
+while True:
+    os.system("clear")
+    print("\t\tModificador de hkpac.json\n\n")
+    for i in data["packs"][0]:
+        print(i)
+    print("\n")
+    X = input(">> ")
+    T = []
+    S = ""
+    for i in X:
+        if i == " ":
+            T.append(S)
+            S = ""
+            continue
+        S += i
+    T.append(S)
+    S = ""
+    if T[0] == "select" or T[0] == "sel":
+        if not T[1] in data["packs"][0]:
+            continue
+        while True:
+            os.system("clear")
+            for i in data["packs"][0][T[1]]:
+                print("{}: {}".format(i, data["packs"][0][T[1]][i]))
+            X = input("{}> ".format(T[1]))
+            TT = []
+            S = ""
+            D = False
+            C = 0
+            for i in X:
+                if i == "[":
+                    D = True
+                    S += i
+                    continue
+                if i == "]" and D:
+                    D = False
+                    S += i
+                    TT.append(S)
+                    continue
+                if i == '"' and C == 0:
+                    C = 1
+                    S += i
+                    continue
+                if i == '"' and C == 1:
+                    C = 0
+                    S += i
+                    TT.append(S)
+                    continue
+                if i == " " and not D and C == 0:
+                    TT.append(S)
+                    S = ""
+                    continue
+                S += i
+            TT.append(S)
+            print(TT)
+            S = ""
+            if TT[0] == "del" and TT[1] in data["packs"][0][T[1]]:
+                data["packs"][0][T[1]].pop(TT[1])
+            if TT[0] == "back":
+                break
+            if TT[0] == "add":
+                if len(TT) == 1 or len(TT) == 2:
+                    print("add command need 2 arguments")
+                    continue
+                if TT[2] == "none":
+                    TT[2] = "''"
+                data["packs"][0][T[1]][TT[1]] = eval(TT[2])
+                continue
+            #mod [key], [value], [index]
+            if TT[0] == "mod":
+                if len(TT) == 1 or len(TT) == 2:
+                    print("add command need 2 arguments")
+                    continue
+                if TT[2] == "none":
+                    TT[2] = "''"
+                if len(TT) == 4 and TT[3].isnumeric() and TT[1] in data["packs"][0][T[1]]:
+                    TT[3] = int(TT[3])
+                    data["packs"][0][T[1]][TT[1]][TT[3]] = eval(TT[2])
+                    continue
+                data["packs"][0][T[1]][TT[1]] = eval(TT[2])
+                continue
+    if T[0] == "add":
+        if len(T) == 1:
+            continue
+        data["packs"][0][T[1]] = {}
+        continue
+    if T[0] == "del":
+        if len(T) == 1:
+            continue
+        data["packs"][0].pop(T[1])
+        continue
+    if T[0] == "write":
+        F.seek(0);F.truncate()
+        X = json.dumps(data, indent=4)
+        F.write(X)
+        print("Wrote")
+        exit()
+    if T[0] == "exit":
+        exit()
+    T.clear()
