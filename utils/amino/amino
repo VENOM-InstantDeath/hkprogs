@@ -144,6 +144,9 @@ while True:
             t.append(s)
             print(t)
             s = ""
+            if not t[1].isdigit():
+                sub.send_message(ACHAT, "Numeric argument expected, got string")
+                continue
             ACHAT = sub.get_public_chat_threads().chatId[int(t[1])]
             print(ACHAT)
             sub.join_chat(ACHAT)
@@ -202,6 +205,13 @@ while True:
                     elif i.startswith("/"):
                         i = i[1:]
                         print(i)
+                        if not i.isdigit():
+                            if i == "back":
+                                del sub1
+                                ctrl = True
+                                break
+                            sub.send_message(ACHAT, "Numeric argument expected, got string.")
+                            continue
                         if int(i) > c:
                             sub.send_message("IndexError. Intenta nuevamente.")
                             continue
