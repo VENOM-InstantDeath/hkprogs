@@ -22,7 +22,7 @@ COMM = HackingUtils
 
 cli = amino.Client()
 
-cli.login("mohamad.bakdounes@hotmail.com", "developer122")
+cli.login("email", "pass")
 print("Logged in")
 sub = amino.SubClient(COMM, cli.profile)
 print("Bot online")
