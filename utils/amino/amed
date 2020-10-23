@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#Amed - Script de edición del bot de Amino.
+#Escrito por Darth Venom.
+#< = >
+
+uname -a | grep Android &> /dev/null
+if [ "$?" == 0 ]; then
+	termux=true
+else
+	termux=false
+fi
+
+if ! "$termux"; then
+	cd /etc
+else
+	cd /data/data/com.termux/files/home/.config/hkpac/
+fi
+
+out=$(python -c 'import json; import sys;F = open("hkpac.conf","r");d=json.load(F);sys.stdout.write(d["conf"][0]["instdir"])')
+cd $out
+vim amino

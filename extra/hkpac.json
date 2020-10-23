@@ -38,6 +38,11 @@
                 "vars": "",
                 "local": "utils/",
                 "desc": "Utilidad para la r\u00e1pida modificaci\u00f3n de hkpac.json"
+            },
+            "amed": {
+                "vars": "",
+                "local": "utils/amino/",
+                "desc": "Script de edici\u00f3n r\u00e1pida para el bot de amino"
             }
         }
     ]
