@@ -34,7 +34,7 @@
                 "local": "utils/amino/",
                 "desc": "Bot de amino creado usando amino.py"
             },
-            "hkmodif": {
+            "hkmod": {
                 "vars": "",
                 "local": "utils/",
                 "desc": "Utilidad para la r\u00e1pida modificaci\u00f3n de hkpac.json"
