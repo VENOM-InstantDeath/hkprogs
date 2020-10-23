@@ -1,0 +1,13 @@
+#!/bin/sh
+
+: '
+ACPI replacement
+Written by Darth Venom and Tobi Emotic
+< = >
+'
+if [ $1 -z ]; then
+	printf "$(cat /sys/class/power_supply/BAT0/capacity)%%, $(cat /sys/class/power_supply/BAT0/status)\n";
+	exit;
+else
+	printf "This program does not take any argument.\n";
+fi
