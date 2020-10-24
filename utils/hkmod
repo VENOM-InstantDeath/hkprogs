@@ -8,8 +8,6 @@ import os
 import json
 from time import sleep
 
-os.chdir("hkprogs/extra/")
-
 F = open("hkpac.json","r+")
 
 data = json.load(F)
