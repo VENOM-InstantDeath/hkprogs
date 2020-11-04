@@ -48,6 +48,11 @@
                 "vars": "",
                 "local": "utils/",
                 "desc": "HackingUtils's Brainfuck interpreter"
+            },
+            "token": {
+                "vars": "",
+                "local": "libs/python/",
+                "desc": "Token module"
             }
         }
     ]
