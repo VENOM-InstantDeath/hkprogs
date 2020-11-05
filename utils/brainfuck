@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 #brainfuck diagrams
-
+from typing import List
 from token import tokenize
+import sys
 
 class MemTable:
     def __init__(self):
@@ -14,22 +15,22 @@ class MemTable:
         self.S1 = True
         self.ST = False
 
-    def IMB(self):
+    def IMB(self) -> str:
         MB = input("memblocks> ")
         if not MB.isdigit():
             print("mem error.")
             exit()
         return MB
-    def CMB(self, x):
+    def CMB(self, x: str) -> None:
         self.A = []
         for i in range(int(x)):
             self.A.append(0)
-    def PMB(self):
+    def PMB(self) -> None:
         S = ""
         for i in self.A:
             S += "[{}]".format(i)
         print(S)
-    def SWB(self, x):
+    def SWB(self, x: str) -> None:
         x = x.replace("#", "")
         L = tokenize(x)
         if L == []:
@@ -43,8 +44,7 @@ class MemTable:
                 return ""
         else:
             return ""
-#        if L[0] == ""
-    def WMB(self, x):
+    def WMB(self, x: List) -> None:
         while self.A[self.P] != 0:
             for i in x:
                 if i == ']':
@@ -75,7 +75,7 @@ class MemTable:
                     self.P += 1
                     continue
                 if i == '.':
-                    self.S += chr(self.A[self.P])
+                    sys.stdout.write(chr(self.A[self.P]))
                     continue
                 if i == ',':
                     I = input()
@@ -85,71 +85,120 @@ class MemTable:
                     self.W = True
                     continue
 
-M = MemTable()
+if len(sys.argv) > 1 and sys.argv[1] == '-i':
+    M = MemTable()
+    MB = M.IMB()
+    M.CMB(MB)
+    M.PMB()
 
-MB = M.IMB()
-
-M.CMB(MB)
-M.PMB()
-
-while True:
-    B = input("code> ")
-    M.S = ""
-    M.W = False
-    M.T = ""
-    for i in B:
-        if M.ST:
+    while True:
+        B = input("code> ")
+        M.S = ""
+        M.W = False
+        M.T = ""
+        for i in B:
+            if M.ST:
+                if i == '#':
+                    M.ST = False
+                    M.SWB(M.T)
+                    M.T = ""
+                    continue
+                M.T += i
+                continue
             if i == '#':
-                M.ST = False
-                M.SWB(M.T)
+                M.ST = True
+                continue
+            if i == ']':
+                M.W = False
+                M.WMB(M.T)
                 M.T = ""
                 continue
-            M.T += i
-            continue
-        if i == '#':
-            M.ST = True
-            continue
-        if i == ']':
-            M.W = False
-            M.WMB(M.T)
-            M.T = ""
-            continue
-        if M.W:
-            M.T += i
-            continue
-        if i == '*':
-            MB = M.IMB()
-            M.CMB(MB)
-            continue
-        if i == '+':
-            M.A[M.P] += 1
-            continue
-        if i == '-':
-            if M.A[M.P] == 0:
+            if M.W:
+                M.T += i
                 continue
-            M.A[M.P] -= 1
-            continue
-        if i == '<':
-            if M.P == 0:
+            if i == '*':
+                MB = M.IMB()
+                M.CMB(MB)
                 continue
-            M.P -= 1
-            continue
-        if i == '>':
-            if M.P == int(MB)-1:
+            if i == '+':
+                M.A[M.P] += 1
                 continue
-            M.P += 1
-            continue
-        if i == '.':
-            M.S += chr(M.A[M.P])
-            continue
-        if i == ',':
-            I = input()
-            M.A[M.P] = ord(I[0])
-            continue
-        if i == '[':
-            M.W = True
-            continue
-    if M.S != "":
-        print(M.S)
-    if M.S1:
-        M.PMB()
+            if i == '-':
+                if M.A[M.P] == 0:
+                    continue
+                M.A[M.P] -= 1
+                continue
+            if i == '<':
+                if M.P == 0:
+                    continue
+                M.P -= 1
+                continue
+            if i == '>':
+                if M.P == int(MB)-1:
+                    continue
+                M.P += 1
+                continue
+            if i == '.':
+                sys.stdout.write(chr(M.A[M.P]))
+                continue
+            if i == ',':
+                I = input()
+                M.A[M.P] = ord(I[0])
+                continue
+            if i == '[':
+                M.W = True
+                continue
+        if M.S1:
+            M.PMB()
+
+if len(sys.argv) > 1:
+    M = MemTable()
+    MB = 50
+    M.CMB(MB)
+    M.S1 = False
+    F = open(sys.argv[1], 'r')
+    LIN = F.readlines(); F.seek(0)
+
+    for B in LIN:
+        M.S = ""
+        M.W = False
+        M.T = ""
+        for i in B:
+            if i == ']':
+                M.W = False
+                M.WMB(M.T)
+                M.T = ""
+                continue
+            if M.W:
+                M.T += i
+                continue
+            if i == '+':
+                M.A[M.P] += 1
+                continue
+            if i == '-':
+                if M.A[M.P] == 0:
+                    continue
+                M.A[M.P] -= 1
+                continue
+            if i == '<':
+                if M.P == 0:
+                    continue
+                M.P -= 1
+                continue
+            if i == '>':
+                if M.P == int(MB)-1:
+                    continue
+                M.P += 1
+                continue
+            if i == '.':
+                sys.stdout.write(chr(M.A[M.P]))
+                continue
+            if i == ',':
+                I = input()
+                M.A[M.P] = ord(I[0])
+                continue
+            if i == '[':
+                M.W = True
+                continue
+        if M.S1:
+            M.PMB()
