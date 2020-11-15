@@ -49,9 +49,9 @@
                 "local": "utils/",
                 "desc": "HackingUtils's Brainfuck interpreter"
             },
-            "token.py": {
+            "tokens.py": {
                 "vars": "",
-                "local": "libs/python/",
+                "local": "/libs/python/",
                 "desc": "token module"
             }
         }
