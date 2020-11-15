@@ -51,7 +51,7 @@
             },
             "tokens.py": {
                 "vars": "",
-                "local": "/libs/python/",
+                "local": "libs/python/",
                 "desc": "token module"
             }
         }
