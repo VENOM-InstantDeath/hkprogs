@@ -10,6 +10,7 @@ HackingUtils = "234960818"
 GameDevelopers = "1083667"
 HarryPotter = "229032048"
 Liberales = "196524014"
+CyberHacking = "68427685"
 
 ChatComun = "18250370-f950-4ada-8510-650511f9f357"
 OffRol = "89eaf028-6c6c-419a-bc15-a4216c69b7fe"
@@ -17,6 +18,7 @@ CHAT = "03ee80fc-71b4-424e-a9cb-95b89f328a35"
 CHTE = "1302adc2-217e-45ef-ac3e-b9e427e6f658"
 BOT = "23e2ffc7-592a-45dd-a2d8-e54c187a5a2b"
 TiempoLibre = "801c7692-1cca-4702-b25d-2ca04131d113"
+ConsYDud = "41b56218-c7e7-4d22-8d82-63957b03ff56"
 Darth = "83e9eb60-3b0e-4009-8b67-dbe432ddae14"
 
 print("Directions declared")
@@ -25,12 +27,12 @@ version = "2.0"
 excp = {"lack_of_args": "El comando requiere al menos 1 parámetro.", "too_much_args": "Demasiados argumentos.", "intbs": "Numeric argument expected, got string"}
 
 ACHAT = BOT
-COMMS = ["HackingUtils", "GameDevelopers", "HarryPotter"]
+COMMS = ["HackingUtils", "GameDevelopers", "HarryPotter", "CyberHacking"]
 COMM = HackingUtils
 
 cli = amino.Client()
 
-cli.login("user", "pass")
+cli.login("mohamad.bakdounes@hotmail.com", "developer122")
 print("Logged in")
 sub = amino.SubClient(COMM, cli.profile)
 print("Bot online")
@@ -39,6 +41,12 @@ old = []
 stop = False
 SIG = ""
 SIGC = False
+
+incycle = 0
+stand = False
+cmdex = False
+
+Gstop = False
 
 def intToBool(x: int) -> str:
     if x == 0:
@@ -54,6 +62,39 @@ def chats(comm: str, comms: list, sub: object) -> list:
 chatT, chatI = chats("HackingUtils", COMMS, sub)
 
 SS = object
+
+############################################CHTE#######################################################
+#######################################################################################################
+
+def guard():
+    global sub
+    global ACHAT
+    global Gstop
+    old = [] #size 15
+    print("entering loop:guard")
+
+    while not Gstop:
+        msg = sub.get_chat_messages(ACHAT, 15)
+        if old == msg.content:
+            continue
+        print(msg.content)
+        for i in range(len(msg.content)):
+            if msg.content[i] in old:
+                print("inold")
+                continue
+            if msg.content[i] == None:
+                print("isnone")
+                E = sub.get_message_info(ACHAT, msg.messageId[i])
+                if E.content == "" and E.type == 100:
+                    print("deleted message")
+                    if old[i] == None:
+                        print("Message cannot be restored")
+                        continue
+                    continue
+                if E.content == "" and E.mediaType == 100:
+                    print("Image detected")
+                    continue
+        old = msg.content
 
 def fochte(COMM, ACHAT, excp, version, stop):
     global SS
@@ -275,9 +316,23 @@ Reputación: {}
 ME = threading.Thread(target=fochte, args=(COMM, CHTE, excp, version, stop))
 ME.start()
 
+###########################################NORMAL#####################################################
+######################################################################################################
 while True:
     msg = sub.get_chat_messages(ACHAT, 2)
     if old == msg.content and SIG == "":
+        print(incycle)
+        if incycle == 25 and not stand and ACHAT != BOT:
+            try:
+                sub.send_message(ACHAT, ">> returned to bots chat", 100)
+            except:
+                pass
+            ACHAT = BOT
+        if not cmdex:
+            incycle += 1
+        else:
+            cmdex = False
+            incycle = 0
         continue
     if SIGC:
         SIG = ""
@@ -303,6 +358,7 @@ while True:
                 SIG = ""
                 SIGC = False
                 print("Done Res")
+                cmdex = True
                 continue
             if T[0] == "/help":
                 sub.send_message(ACHAT, """[cb]HackingUtils's Bot
@@ -333,18 +389,22 @@ while True:
 /poweroff: Termina el proceso.
 
 Escrito por Darth Venom.""")
+                cmdex = True
                 continue
 
             if T[0] == "/hello":
                 sub.send_message(ACHAT, "Hello!")
+                cmdex = True
                 continue
 
             if T[0] == "/hi":
                 sub.send_message(ACHAT, "Hi!")
+                cmdex = True
                 continue
 
             if T[0] == "/version":
                 sub.send_message(ACHAT, version)
+                cmdex = True
                 continue
 
             if T[0] == "/di":
@@ -355,6 +415,7 @@ Escrito por Darth Venom.""")
                     sub.send_message(ACHAT, excp["too_much_args"])
                     continue
                 sub.send_message(ACHAT, T[1].replace('"', ""))
+                cmdex = True
                 continue
 
             if T[0] == "/meme":
@@ -363,6 +424,7 @@ Escrito por Darth Venom.""")
                     continue
                 if len(T) == 2:
                     continue
+                cmdex = True
                 continue
 
             if T[0] == "/public_chats":
@@ -372,6 +434,8 @@ Escrito por Darth Venom.""")
                     s += "[{}]{}\n".format(c, x)
                     c += 1
                 sub.send_message(ACHAT, s)
+                cmdex = True
+                continue
 
             if T[0] == "/info":
                 if len(T) > 2:
@@ -398,6 +462,7 @@ Reputación: {}
 [c]Biografía
 
 {}""".format(user.json[0]["nickname"], user.json[0]["uid"], user.json[0]["blogsCount"], intToBool(int(user.json[0]["onlineStatus"])), user.json[0]["level"], user.json[0]["reputation"], user.json[0]["content"]))
+                cmdex = True
                 continue
 
             if T[0] == "/goto":
@@ -414,6 +479,7 @@ Reputación: {}
                 print(ACHAT)
                 sub.join_chat(ACHAT)
                 print("Joined")
+                cmdex = True
                 continue
 
             if T[0] == "/mv":
@@ -481,11 +547,70 @@ Reputación: {}
                     if ctrl == True:
                         break
                 del ctrl
+                cmdex = True
+                continue
+            if T[0] == "/stand":
+                if len(T) > 2:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if len(T) == 1:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                if T[1] == "on":
+                    try:
+                        sub.send_message(ACHAT, ">> is staying here", 100)
+                    except:
+                        pass
+                    stand = True
+                if T[1] == "off":
+                    try:
+                        sub.send_message(ACHAT, ">> is leaving after 50 cycles of inactivity", 100)
+                    except:
+                        pass
+                    stand = False
+                cmdex = True
+                continue
+            if T[0] == "/guard":
+                if len(T) > 2:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if len(T) == 1:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                if T[1] == "on":
+                    try:
+                        sub.send_message(ACHAT, "Guard is on", 100)
+                    except:
+                        pass
+                    stand = True
+                    Gstop = False
+                    GUARD = threading.Thread(target=guard)
+                    GUARD.start()
+                if T[1] == "off":
+                    try:
+                        sub.send_message(ACHAT, "Guard is off", 100)
+                    except:
+                        pass
+                    stand = False
+                    Gstop = True
+                cmdex = True
                 continue
 
     if stop == True:
         break
     old = msg.content
+    print(incycle)
+    if incycle == 25 and not stand and ACHAT != BOT:
+        try:
+            sub.send_message(ACHAT, ">> returned to bots chat", 100)
+        except:
+            pass
+        ACHAT = BOT
+    if not cmdex:
+        incycle += 1
+    else:
+        cmdex = False
+        incycle = 0
 
 print("Going offline")
 cli.logout()
