@@ -4,33 +4,38 @@
 from typing import List
 from tokens import tokenize
 import sys
-
+import re
+import os
+# (.?)+[0-9a-zA-Z]+(.?)+
+# (.?)+[0-9a-zA-Z]+
 class MemTable:
     def __init__(self):
-        self.A = []
-        self.P = 0
-        self.S = ""
-        self.W = False
-        self.T = ""
-        self.S1 = True
-        self.ST = False
+        self.A = [] # memory array
+        self.P = 0 # memory pointer
+        self.S = "" # possibly useless
+        self.W = False # While
+        self.T = "" # String used on while
+        self.S1 = True # prints memblocks
+        self.S2 = True # converts char to ord
+        self.S3 = False # aditional operations
+        self.ST = False # options
 
-    def IMB(self) -> str:
+    def IMB(self) -> str: # asks for memblocks
         MB = input("memblocks> ")
         if not MB.isdigit():
             print("mem error.")
             exit()
         return MB
-    def CMB(self, x: str) -> None:
+    def CMB(self, x: str) -> None: # creates memory array
         self.A = []
         for i in range(int(x)):
             self.A.append(0)
-    def PMB(self) -> None:
+    def PMB(self) -> None: # prints memblocks
         S = ""
         for i in self.A:
             S += "[{}]".format(i)
         print(S)
-    def SWB(self, x: str) -> None:
+    def SWB(self, x: str) -> None: # options
         x = x.replace("#", "")
         L = tokenize(x)
         if L == []:
@@ -41,10 +46,17 @@ class MemTable:
             if L[1] == "0":
                 self.S1 = False
             else:
-                return ""
+                return None
+        if L[0] == "Chartoord=":
+            if L[1] == "1":
+                self.S2 = True
+            if L[1] == "0":
+                self.S2 = False
+            else:
+                return None
         else:
-            return ""
-    def WMB(self, x: List) -> None:
+            return None
+    def WMB(self, x: List) -> None: # while loop
         while self.A[self.P] != 0:
             for i in x:
                 if i == ']':
@@ -85,7 +97,7 @@ class MemTable:
                     self.W = True
                     continue
 
-if len(sys.argv) > 1 and sys.argv[1] == '-i':
+if len(sys.argv) > 1 and sys.argv[1] == '-i': # interactive
     M = MemTable()
     MB = M.IMB()
     M.CMB(MB)
@@ -123,6 +135,13 @@ if len(sys.argv) > 1 and sys.argv[1] == '-i':
             if i == '+':
                 M.A[M.P] += 1
                 continue
+            if M.S2 and re.match('[0-9a-zA-Z]', i):
+                M.A[M.P] = ord(i)
+                continue
+            if M.S3 and i == "!":
+                # >++++[<+++>-]< ![echo "hello world"] +++-.>,
+                # >++++[<+++>-]<!echo "hello world"!+++-.>,
+                pass
             if i == '-':
                 if M.A[M.P] == 0:
                     continue
