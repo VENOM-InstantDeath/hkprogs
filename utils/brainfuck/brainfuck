@@ -2,7 +2,7 @@
 
 #brainfuck diagrams
 from typing import List
-from tokens2 import tokenize
+from tokens import tokenize
 import sys
 import re
 import os
