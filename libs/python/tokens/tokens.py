@@ -18,11 +18,11 @@ def tokenize(X: str) -> list:
     C = False # ""
     SP = False
     for i in X:
-        if i == "[" and not D: # Abre corchetes
+        if i == "[" and not D and not C: # Abre corchetes
             D = True
             S += i
             continue
-        if i == "]" and D: # Cierra corchetes
+        if i == "]" and D and not C: # Cierra corchetes
             D = False
             S += i
             TT.append(S)
