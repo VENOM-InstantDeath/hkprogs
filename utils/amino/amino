@@ -40,10 +40,15 @@ print("Logged in")
 #Custom commands
 if "custom" in os.listdir():
     F = open("custom", "r+")
+    custom=json.load(F)
 else:
     F = open("custom", "w+")
     custom={}
-custom=json.load(F)
+    F.write(json.dumps(custom, indent=4))
+    F.close()
+    F = open("custom", "r+")
+    custom=json.load(F)
+
 print("Loaded custom commands")
 
 sub = amino.SubClient(COMM, cli.profile)
@@ -639,6 +644,23 @@ Reputación: {}
                 if len(T) < 3:
                     sub.send_message(ACHAT, excp["lack_of_args"])
                     continue
+                T[1] = T[1].replace('"', '')
+                T[2] = T[2].replace('"', '')
+                custom[T[1]] = T[2]
+                F.seek(0);F.truncate()
+                F.write(json.dumps(custom, indent=4))
+                cmdex = True
+                continue
+            if T[0] == "/stop":
+                stop = True
+
+        if i.startswith("!"):
+            print(tokenize(i).full)
+            T = tokenize(i); T = T.full
+            if T[0] in custom:
+                sub.send_message(ACHAT, custom[T[0]])
+                cmdex = True
+                continue
 
 
     if stop == True:
@@ -657,6 +679,7 @@ Reputación: {}
         incycle = 0
 
 print("Going offline")
+F.close()
 cli.logout()
 del amino
 exit()
