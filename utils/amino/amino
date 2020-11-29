@@ -5,6 +5,8 @@ from tokens import tokenize
 from time import sleep
 import threading
 from googletrans import Translator
+import json
+import os
 
 HackingUtils = "234960818"
 GameDevelopers = "1083667"
@@ -23,7 +25,7 @@ Darth = "83e9eb60-3b0e-4009-8b67-dbe432ddae14"
 
 print("Directions declared")
 stop = False
-version = "2.0"
+version = "2.2.7"
 excp = {"lack_of_args": "El comando requiere al menos 1 parámetro.", "too_much_args": "Demasiados argumentos.", "intbs": "Numeric argument expected, got string"}
 
 ACHAT = BOT
@@ -32,8 +34,18 @@ COMM = HackingUtils
 
 cli = amino.Client()
 
-cli.login("mohamad.bakdounes@hotmail.com", "developer122")
+cli.login("email", "pass")
 print("Logged in")
+
+#Custom commands
+if "custom" in os.listdir():
+    F = open("custom", "r+")
+else:
+    F = open("custom", "w+")
+    custom={}
+custom=json.load(F)
+print("Loaded custom commands")
+
 sub = amino.SubClient(COMM, cli.profile)
 print("Bot online")
 
@@ -115,7 +127,7 @@ def fochte(COMM, ACHAT, excp, version, stop):
                 continue
     
             if i.startswith("/"):
-                T = tokenize(i)
+                T = tokenize(i);T = T.full
                 if T[0] == "/sig":
                     if len(T) > 2:
                         sub.send_message(ACHAT, excp["too_much_args"])
@@ -321,7 +333,6 @@ ME.start()
 while True:
     msg = sub.get_chat_messages(ACHAT, 2)
     if old == msg.content and SIG == "":
-        print(incycle)
         if incycle == 25 and not stand and ACHAT != BOT:
             try:
                 sub.send_message(ACHAT, ">> returned to bots chat", 100)
@@ -349,8 +360,8 @@ while True:
             continue
 
         if i.startswith("/"):
-            print(tokenize(i))
-            T = tokenize(i)
+            print(tokenize(i).full)
+            T = tokenize(i); T = T.full
             if T[0] == "/__SIG_RESERVED":
                 sub = SS
                 SS = object
@@ -376,7 +387,8 @@ while True:
 /info [nickname]: Revela información de un usuario.
 /goto [numChat]: Envía el bot a otro chat.
 /mv [comunidad]: Envía el bot a otra comunidad.
-/guard [tiempo]: Repite los mensajes borrados durante N cantidad de tiempo.
+/stand [on|off]: Previene que el bot vuelva al chat de bots.
+/guard [on|off]: Repite los mensajes borrados durante N cantidad de tiempo.
 /id: Revela la Id del chat y de la comunidad.
 
 /eval [expresion]: Evalúa una expresión matemática.
@@ -549,6 +561,7 @@ Reputación: {}
                 del ctrl
                 cmdex = True
                 continue
+
             if T[0] == "/stand":
                 if len(T) > 2:
                     sub.send_message(ACHAT, excp["too_much_args"])
@@ -570,6 +583,7 @@ Reputación: {}
                     stand = False
                 cmdex = True
                 continue
+
             if T[0] == "/guard":
                 if len(T) > 2:
                     sub.send_message(ACHAT, excp["too_much_args"])
@@ -596,10 +610,40 @@ Reputación: {}
                 cmdex = True
                 continue
 
+            if T[0] == "/id":
+                if len(T) > 1:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                sub.send_message(ACHAT, "chatId: {}\n\ncomId: {}".format(ACHAT, COMM))
+                cmdex = True
+                continue
+            if T[0] == "/eval":
+                if len(T) == 1:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                expp = ""
+                for i in T[1:]:
+                    expp += i
+                try:
+                    expp=eval(expp)
+                    sub.send_message(ACHAT, str(expp))
+                except:
+                    sub.send_message(ACHAT, "An error ocurred during the operation.")
+                    continue
+                cmdex = True
+                continue
+            if T[0] == "/teach":
+                if len(T) > 3:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if len(T) < 3:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+
+
     if stop == True:
         break
     old = msg.content
-    print(incycle)
     if incycle == 25 and not stand and ACHAT != BOT:
         try:
             sub.send_message(ACHAT, ">> returned to bots chat", 100)
