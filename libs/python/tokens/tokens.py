@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from typing import List
+
 class obj:
     def __init__(self):
         self.corch = []
@@ -9,7 +11,13 @@ class obj:
         self.size = 0
         self.full = []
 
-def tokenize(X: str) -> list:
+def untoken(X: List) -> str:
+    s = ""
+    for i in X:
+        s += str(i)
+    return s
+
+def tokenize(X: str) -> List[str]:
     retobj = obj()
     TT = []
     S = ""
