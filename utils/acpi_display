@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+
+import threading, os
+from time import sleep
+
+
+def colorst(x, y):
+    if not len(x) == 0:
+        if x == 'red':
+            col = '31m'
+        elif x == 'green':
+            col = '32m'
+        elif x == 'orange':
+            col = '33m'
+        elif x == 'blue':
+            col = '34m'
+        elif x == 'purple':
+            col = '35m'
+        elif x == 'light_blue':
+            col = '36m'
+        elif x == 'white':
+            col = '37m'
+        print('\033[1;{}{}\033[0m'.format(col, y))
+
+
+class ACPI:
+    def __init__(self):
+        self.stop = False
+        self.resume = False
+
+    def pa(self):
+        F=open('/sys/class/power_supply/BAT0/capacity','r');
+        while not self.stop:
+            sleep(1)
+            F.seek(0);
+            acpi = F.read().strip();
+            if int(acpi) < 5:
+                os.system('clear')
+                colorst('red','Battery LOW* [{}%]'.format(acpi))
+                os.system('systemctl suspend')
+                self.resume = False
+                while not self.resume:
+                    sleep(2);
+                continue
+            elif int(acpi) < 20:
+                os.system('clear')
+                colorst('red', 'Battery LOW [{}%]'.format(acpi))
+            else:
+                os.system('clear')
+                colorst('green', 'Battery OK [{}%]'.format(acpi))
+
+
+if __name__ == "__main__":
+    os.system('clear')
+    ACP=ACPI()
+    
+    N=threading.Thread(target=ACP.pa)
+    N.start()
+    while True:
+        x=input()
+        if x == "stop":
+            ACP.stop = True
+            break
+        elif x == "resume":
+            ACP.resume = True
+        else:
+            continue
+    exit()

@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+
+import amino
+
+cli = amino.Client()
+cli.login("email", "pass") # Reemplazar parámetros
+sub = amino.SubClient("comId", cli.profile) # Reemplazar por el Id de la comunidad
+
+while True:
+    Lusers = sub.get_all_users(size=5)
+    users = Lusers.profile.nickname
+    ids = Lusers.profile.userId
+    for i in range(len(users)):
+        B = False
+        x=sub.get_wall_comments(ids[i], "oldest").content
+        for e in x:
+            if e.startswith("Mensaje de bienvenida o parte del mismo"): # Reemplazar el string
+                B = True
+        if B == False:
+            sub.comment("Mensaje de bienvenida", ids[i]) # Reemplazar el string por el mensaje de bienvenida
+            print("Posted welcome on {}'s wall".format(users[i]))

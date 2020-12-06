@@ -1,0 +1,59 @@
+{
+    "packs": [
+        {
+            "light": {
+                "vars": [
+                    "bash",
+                    "sh"
+                ],
+                "local": "utils/",
+                "desc": "Gestor de brillo"
+            },
+            "acpi": {
+                "vars": "",
+                "local": "utils/",
+                "desc": "Visor del estado de la/s bater\u00eda/s"
+            },
+            "eash": {
+                "vars": "",
+                "local": "utils/eash/",
+                "desc": "Gu\u00eda para el correcto uso de la terminal"
+            },
+            "client": {
+                "vars": "",
+                "local": "utils/",
+                "desc": "Programa temporalmente agregado, prueba de sockets. Cliente"
+            },
+            "server": {
+                "vars": "",
+                "local": "utils/",
+                "desc": "Programa temporalmente agregado, prueba de sockets. Server"
+            },
+            "amino": {
+                "vars": "",
+                "local": "utils/amino/",
+                "desc": "Bot de amino creado usando amino.py"
+            },
+            "hkmod": {
+                "vars": "",
+                "local": "utils/",
+                "desc": "Utilidad para la r\u00e1pida modificaci\u00f3n de hkpac.json"
+            },
+            "amed": {
+                "vars": "",
+                "local": "utils/amino/",
+                "desc": "Script de edici\u00f3n r\u00e1pida para el bot de amino"
+            },
+            "brainfuck": {
+                "vars": "",
+                "local": "utils/brainfuck/",
+                "desc": "HackingUtils's Brainfuck interpreter"
+            },
+            "tokens.py": {
+                "vars": "",
+                "local": "libs/python/tokens/",
+                "desc": "token module"
+            }
+        }
+    ]
+}

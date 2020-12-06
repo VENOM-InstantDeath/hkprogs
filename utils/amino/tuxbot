@@ -1,0 +1,797 @@
+#!/usr/bin/env python3
+
+#   This file is part of hkprogs
+
+#   hkprogs is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+
+#   hkprogs is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+__author__ = "Darth Venom"
+__credits__ = ["Darth Venom", "Antitesista"]
+__license__ = "GPL"
+__maintainer__ = "Darth Venom"
+
+import amino
+from tokens import tokenize
+from time import sleep
+import threading
+from nums import numres
+import json
+import os
+import re
+from shutil import copyfile
+
+HackingUtils = "234960818"
+GameDevelopers = "1083667"
+HarryPotter = "229032048"
+Liberales = "196524014"
+CyberHacking = "68427685"
+
+ChatComun = "18250370-f950-4ada-8510-650511f9f357"
+OffRol = "89eaf028-6c6c-419a-bc15-a4216c69b7fe"
+CHAT = "03ee80fc-71b4-424e-a9cb-95b89f328a35"
+CHTE = "1302adc2-217e-45ef-ac3e-b9e427e6f658"
+BOT = "23e2ffc7-592a-45dd-a2d8-e54c187a5a2b"
+TiempoLibre = "801c7692-1cca-4702-b25d-2ca04131d113"
+ConsYDud = "41b56218-c7e7-4d22-8d82-63957b03ff56"
+Darth = "83e9eb60-3b0e-4009-8b67-dbe432ddae14"
+DarthVenoms = "132471950"
+Main = "f2c3881b-4e3a-4244-a301-2a6637a4a0ba"
+
+print("Directions declared")
+stop = False
+version = "2.2.7"
+excp = {"lack_of_args": "El comando requiere al menos 1 parámetro.", "too_much_args": "Demasiados argumentos.", "intbs": "Numeric argument expected, got string"}
+
+ACHAT = BOT
+RCHAT = BOT
+COMMS = ["HackingUtils", "GameDevelopers", "HarryPotter", "CyberHacking", "DarthVenoms"]
+COMM = HackingUtils
+
+cli = amino.Client()
+
+if not "creds" in os.listdir():
+    F = open("creds", "w+")
+    creds = {}
+    creds["email"]=input("\nintroduce un correo electrónico: ")
+    creds["pass"]=input("introduce una contraseña: ")
+    F.write(json.dumps(creds, indent=4))
+    F.close()
+    print("Created creds file")
+
+F = open("creds", "r");creds=json.load(F);F.close()
+cli.login(creds["email"], creds["pass"])
+print("Logged in")
+
+#Custom commands
+if "custom" in os.listdir():
+    F = open("custom", "r+")
+    custom=json.load(F)
+else:
+    F = open("custom", "w+")
+    custom={}
+    F.write(json.dumps(custom, indent=4))
+    F.close()
+    F = open("custom", "r+")
+    custom=json.load(F)
+
+print("Loaded custom commands")
+
+sub = amino.SubClient(COMM, cli.profile)
+print("Bot online")
+
+old = []
+stop = False
+SIG = ""
+SIGC = False
+
+inum = numres()
+
+incycle = 0
+stand = False
+cmdex = False
+
+Gstop = False
+
+SU = ["Darth Venom", "Darth Revan", "Revan"]
+
+#translator = Translator()
+
+blkl = ['/eval'] # blacklist
+
+def intToBool(x: int) -> str:
+    if x == 0:
+        return "false"
+    if x == 1:
+        return "true"
+
+def chats(comm: str, comms: list, sub: object) -> list:
+    chatT = sub.get_public_chat_threads().title
+    chatI = sub.get_public_chat_threads().chatId
+    return chatT, chatI
+
+chatT, chatI = chats("HackingUtils", COMMS, sub)
+
+SS = object
+
+############################################CHTE#######################################################
+#######################################################################################################
+
+def guard():
+    global sub
+    global ACHAT
+    global Gstop
+    old = [] #size 15
+    print("entering loop:guard")
+
+    while not Gstop:
+        msg = sub.get_chat_messages(ACHAT, 15)
+        if old == msg.content:
+            continue
+        print(msg.content)
+        for i in range(len(msg.content)):
+            if msg.content[i] in old:
+                print("inold")
+                continue
+            if msg.content[i] == None:
+                print("isnone")
+                E = sub.get_message_info(ACHAT, msg.messageId[i])
+                if E.content == "" and E.type == 100:
+                    print("deleted message")
+                    if old[i] == None:
+                        print("Message cannot be restored")
+                        continue
+                    continue
+                if E.content == "" and E.mediaType == 100:
+                    print("Image detected")
+                    continue
+        old = msg.content
+
+def fochte(COMM, ACHAT, excp, version, stop):
+    global SS
+    global chatT
+    global chatI
+    global cli
+    global SIG
+    sub = amino.SubClient(COMM, cli.profile)
+    old = []
+    while True:
+        msg = sub.get_chat_messages(ACHAT, 2)
+        if old == msg.content:
+            continue
+        for i in msg.content:
+            if i in old:
+                continue
+            if i == None:
+                continue
+    
+            if i.startswith("/"):
+                T = tokenize(i);T = T.full
+                if T[0] == "/sig":
+                    if len(T) > 2:
+                        sub.send_message(ACHAT, excp["too_much_args"])
+                        continue
+                    if len(T) == 1:
+                        sub.send_message(ACHAT, excp["lack_of_args"])
+                        continue
+                    SIG = T[1].replace('[', '')
+                    SIG = SIG.replace(']', '')
+                    sub.send_message(ACHAT, "Changed SIG to {}".format(SIG))
+
+                if T[0] == "/help":
+                    sub.send_message(ACHAT, """[cb]HackingUtils's Bot
+    
+[b]Commands
+
+/hello: Devuelve un saludo.
+/hi: Devuelve un saludo.
+/help: Muestra este mensaje.
+/version: Muestra la versión del bot.
+/di [String]: Repite lo que se le pide.
+/meme [plantilla]: Muestra una plantilla, si no se especifican argumentos muestra un meme aleatorio.
+
+/public_chats: Muestra los chats publicos.
+/info [nickname]: Revela información de un usuario.
+/goto [numChat]: Envía el bot a otro chat.
+/mv [comunidad]: Envía el bot a otra comunidad.
+/guard [tiempo]: Repite los mensajes borrados durante N cantidad de tiempo.
+/id: Revela la Id del chat y de la comunidad.
+
+/eval [expresion]: Evalúa una expresión matemática.
+/teach [command] [answer]: Enseña un comando y su respuesta al bot.
+/trad [idioma] [oración]: Traduce una oración a X idioma.
+/langdet [oración]: Detecta el idioma de una oración.
+
+/def [termino]: Busca la definición de un término.
+
+/poweroff: Termina el proceso.
+
+Escrito por Darth Venom.""")
+                    continue
+
+                if T[0] == "/hello":
+                    sub.send_message(ACHAT, "Hello!")
+                    continue
+    
+                if T[0] == "/hi":
+                    sub.send_message(ACHAT, "Hi!")
+                    continue
+    
+                if T[0] == "/version":
+                    sub.send_message(ACHAT, version)
+                    continue
+
+                if T[0] == "/di":
+                    if len(T) == 1:
+                        sub.send_message(ACHAT, excp["lack_of_args"])
+                        continue
+                    if len(T) > 2:
+                        sub.send_message(ACHAT, excp["too_much_args"])
+                        continue
+                    sub.send_message(ACHAT, T[1].replace('"', ""))
+                    continue
+    
+                if T[0] == "/meme":
+                    if len(T) > 2:
+                        sub.send_message(ACHAT, excp["too_much_args"])
+                        continue
+                    if len(T) == 2:
+                        continue
+                    continue
+    
+                if T[0] == "/public_chats":
+                    s = ""
+                    c = 0
+                    for x in chatT:
+                        s += "[{}]{}\n".format(c, x)
+                        c += 1
+                    sub.send_message(ACHAT, s)
+    
+                if T[0] == "/info":
+                    if len(T) > 2:
+                        sub.send_message(ACHAT, excp["too_much_args"])
+                        continue
+                    if len(T) == 1:
+                        sub.send_message(ACHAT, excp["lack_of_args"])
+                        continue
+                    print("Searching for user {}".format(T[1]))
+                    user = sub.search_users(T[1])
+                    print("Done Searching")
+                    if user.json == []:
+                        print("User not found")
+                        sub.send_message(ACHAT, "User not found")
+                        continue
+                    sub.send_message(ACHAT, """[cb]{}'s info
+    
+ID: {}
+Publicaciones: {}
+Online: {}
+Nivel: {}
+Reputación: {}
+
+[c]Biografía
+
+{}""".format(user.json[0]["nickname"], user.json[0]["uid"], user.json[0]["blogsCount"], intToBool(int(user.json[0]["onlineStatus"])), user.json[0]["level"], user.json[0]["reputation"], user.json[0]["content"]))
+                    continue
+
+                if T[0] == "/goto":
+                    if len(T) > 2:
+                        sub.send_message(ACHAT, excp["too_much_args"])
+                        continue
+                    if len(T) == 1:
+                        sub.send_message(ACHAT, excp["lack_of_args"])
+                        continue
+                    if not T[1].isdigit():
+                        sub.send_message(ACHAT, excp["intbs"])
+                        continue
+                    SIG = "{} {}".format(T[0], T[1])
+                    continue
+                if T[0] == "/mv":
+                    if len(T) > 2:
+                        sub.send_message(ACHAT, excp["too_much_args"])
+                        continue
+                    if len(T) == 1:
+                        sub.send_message(ACHAT, excp["lack_of_args"])
+                        continue
+
+                    if T[1] in COMMS:
+                        COM = eval(T[1])
+                        print(COM)
+                        print(T[1])
+                    else:
+                        sub.send_message(ACHAT, "Comunidad inexistente.")
+                        continue
+    
+                    sub.send_message(ACHAT, "Yendo a {}".format(COM))
+                    #SIG = '/di "Yendo a {}"'.format(COMM)
+                    SS = amino.SubClient(COM, cli.profile)
+    
+                    #public_chats
+                    chatTT, chatII = chats(COM, COMMS, SS)
+                    s = ""
+                    c = 0
+                    for x in chatTT:
+                        s += "[{}]{}\n".format(c, x)
+                        c += 1
+                    sub.send_message(ACHAT, s) 
+    
+                    sub.send_message(ACHAT, "Selecciona un chat por su número.")
+                    old1 = []
+                    ctrl = False
+                    while True:
+                        msg = sub.get_chat_messages(ACHAT, 2)
+                        if old1 == msg.content:
+                            continue
+                        for i in msg.content:
+                            if i in old:
+                                continue
+                            if i == None:
+                                continue
+            
+                            elif i.startswith("/"):
+                                i = i[1:]
+                                print(i)
+                                if not i.isdigit():
+                                    if i == "back":
+                                        del SS
+                                        ctrl = True
+                                        break
+                                    sub.send_message(ACHAT, "Numeric argument expected, got string.")
+                                    continue
+                                if int(i) >= c:
+                                    sub.send_message(ACHAT, "IndexError. Intenta nuevamente.")
+                                    continue
+                                sub.send_message(ACHAT, "Selected {}".format(i))
+                                SIG = '/__SIG_RESERVED'
+                                while SIG != "":
+                                    sleep(1)
+                                print("SIG from thread1")
+                                SIG = '/goto {}'.format(i)
+                                sleep(2)
+                                while SIG != "":
+                                    sleep(1)
+                                print("SIG from thread2")
+                                SIG = '/di "I\'m here"'
+                                ctrl = True
+                                break
+                        old1 = msg.content
+                        if ctrl == True:
+                            break
+                    del ctrl
+                    continue
+
+        if stop == True:
+            break
+        old = msg.content
+
+ME = threading.Thread(target=fochte, args=(HackingUtils, CHTE, excp, version, stop))
+ME.start()
+
+###########################################NORMAL#####################################################
+######################################################################################################
+while True:
+    msg = sub.get_chat_messages(ACHAT, 2)
+    if old == msg.content and SIG == "":
+        if incycle == 25 and not stand and ACHAT != RCHAT:
+            try:
+                sub.send_message(ACHAT, ">> returned to bots chat", 100)
+            except:
+                pass
+            ACHAT = RCHAT
+        if not cmdex:
+            incycle += 1
+        else:
+            cmdex = False
+            incycle = 0
+        continue
+    if SIGC:
+        SIG = ""
+        SIGC = False
+
+    for i in msg.content:
+        if SIG != "" and not SIGC:
+            print("SIG is not empty")
+            i = SIG
+            SIGC = True
+        if i in old:
+            continue
+        if i == None:
+            continue
+
+        if i.startswith("/") and not "builtin" in blkl:
+            print(tokenize(i).full)
+            T = tokenize(i); T = T.full
+            if T[0] == "/__SIG_RESERVED":
+                sub = SS
+                SS = object
+                chatT, chatI = chats(COMM, COMMS, sub)
+                SIG = ""
+                SIGC = False
+                print("Done Res")
+                cmdex = True
+                continue
+            if T[0] == "/help" and not T[0] in blkl:
+                sub.send_message(ACHAT, """[cb]HackingUtils's Bot
+
+[b]Commands
+
+/hello: Devuelve un saludo.
+/hi: Devuelve un saludo.
+/help: Muestra este mensaje.
+/version: Muestra la versión del bot.
+/di [String]: Repite lo que se le pide.
+/meme [plantilla]: Muestra una plantilla, si no se especifican argumentos muestra un meme aleatorio.
+
+/public_chats: Muestra los chats publicos.
+/info [nickname]: Revela información de un usuario.
+/goto [numChat]: Envía el bot a otro chat.
+/mv [comunidad]: Envía el bot a otra comunidad.
+/stand [on|off]: Previene que el bot vuelva al chat de bots.
+/guard [on|off]: Repite los mensajes borrados durante N cantidad de tiempo.
+/id: Revela la Id del chat y de la comunidad.
+
+/eval [expresion]: Evalúa una expresión matemática.
+/teach [command] [answer]: Enseña un comando y su respuesta al bot.
+/trad [idioma] [oración]: Traduce una oración a X idioma.
+/langdet [oración]: Detecta el idioma de una oración.
+
+/def [termino]: Busca la definición de un término.
+
+/poweroff: Termina el proceso.
+
+Escrito por Darth Venom.""")
+                cmdex = True
+                continue
+
+            if T[0] == "/hello" and not T[0] in blkl:
+                sub.send_message(ACHAT, "Hello!")
+                cmdex = True
+                continue
+
+            if T[0] == "/hi" and not T[0] in blkl:
+                sub.send_message(ACHAT, "Hi!")
+                cmdex = True
+                continue
+
+            if T[0] == "/version" and not T[0] in blkl:
+                sub.send_message(ACHAT, version)
+                cmdex = True
+                continue
+
+            if T[0] == "/di" and not T[0] in blkl:
+                if len(T) == 1:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                if len(T) > 2:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                sub.send_message(ACHAT, T[1].replace('"', ""))
+                cmdex = True
+                continue
+
+            if T[0] == "/meme" and not T[0] in blkl:
+                if len(T) > 2:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if len(T) == 2:
+                    continue
+                cmdex = True
+                continue
+
+            if T[0] == "/public_chats" and not T[0] in blkl:
+                s = ""
+                c = 0
+                for x in chatT:
+                    s += "[{}]{}\n".format(c, x)
+                    c += 1
+                sub.send_message(ACHAT, s)
+                cmdex = True
+                continue
+
+            if T[0] == "/info" and not T[0] in blkl:
+                if len(T) > 2:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if len(T) == 1:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                print("Searching for user {}".format(T[1]))
+                user = sub.search_users(T[1])
+                print("Done Searching")
+                if user.json == []:
+                    print("User not found")
+                    sub.send_message(ACHAT, "User not found")
+                    continue
+                sub.send_message(ACHAT, """[cb]{}'s info
+
+ID: {}
+Publicaciones: {}
+Online: {}
+Nivel: {}
+Reputación: {}
+
+[c]Biografía
+
+{}""".format(user.json[0]["nickname"], user.json[0]["uid"], user.json[0]["blogsCount"], intToBool(int(user.json[0]["onlineStatus"])), user.json[0]["level"], user.json[0]["reputation"], user.json[0]["content"]))
+                cmdex = True
+                continue
+
+            if T[0] == "/goto" and not T[0] in blkl:
+                if len(T) > 2:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if len(T) == 1:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                if not T[1].isdigit():
+                    sub.send_message(ACHAT, excp["intbs"])
+                    continue
+                ACHAT = chatI[int(T[1])]
+                print(ACHAT)
+                sub.join_chat(ACHAT)
+                print("Joined")
+                cmdex = True
+                continue
+
+            if T[0] == "/mv" and not T[0] in blkl:
+                if len(T) > 2:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if len(T) == 1:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+
+                if T[1] in COMMS:
+                    COMM = eval(T[1])
+                else:
+                    sub.send_message(ACHAT, "Comunidad inexistente.")
+                    continue
+
+                sub.send_message(ACHAT, "Yendo a {}".format(COMM))
+                sub1 = amino.SubClient(COMM, cli.profile)
+
+                #public_chats
+                chatT, chatI = chats(COMM, COMMS, sub1)
+                s = ""
+                c = 0
+                for x in chatT:
+                    s += "[{}]{}\n".format(c, x)
+                    c += 1
+                sub.send_message(ACHAT, s)
+
+                sub.send_message(ACHAT, "Selecciona un chat por su número.")
+                old1 = []
+                ctrl = False
+                while True:
+                    msg = sub.get_chat_messages(ACHAT, 2)
+                    if old1 == msg.content:
+                        continue
+                    for i in msg.content:
+                        if i in old:
+                            continue
+                        if i == None:
+                            continue
+        
+                        elif i.startswith("/"):
+                            i = i[1:]
+                            print(i)
+                            if not i.isdigit():
+                                if i == "back":
+                                    del sub1
+                                    ctrl = True
+                                    break
+                                sub.send_message(ACHAT, "Numeric argument expected, got string.")
+                                continue
+                            if int(i) >= c:
+                                sub.send_message(ACHAT, "IndexError. Intenta nuevamente.")
+                                continue
+                            sub.send_message(ACHAT, "Selected {}".format(i))
+                            ACHAT = chatI[int(i)]
+                            sub1.join_chat(ACHAT)
+                            sub = sub1
+                            sub.send_message(ACHAT, "I'm here")
+                            del sub1
+                            ctrl = True
+                            break
+                    old1 = msg.content
+                    if ctrl == True:
+                        break
+                del ctrl
+                cmdex = True
+                continue
+
+            if T[0] == "/stand" and not T[0] in blkl:
+                if len(T) > 2:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if len(T) == 1:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                if T[1] == "on":
+                    try:
+                        sub.send_message(ACHAT, ">> is staying here", 100)
+                    except:
+                        pass
+                    stand = True
+                if T[1] == "off":
+                    try:
+                        sub.send_message(ACHAT, ">> is leaving after 50 cycles of inactivity", 100)
+                    except:
+                        pass
+                    stand = False
+                cmdex = True
+                continue
+
+            if T[0] == "/guard" and not T[0] in blkl:
+                if len(T) > 2:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if len(T) == 1:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                if T[1] == "on":
+                    try:
+                        sub.send_message(ACHAT, "Guard is on", 100)
+                    except:
+                        pass
+                    stand = True
+                    Gstop = False
+                    GUARD = threading.Thread(target=guard)
+                    GUARD.start()
+                if T[1] == "off":
+                    try:
+                        sub.send_message(ACHAT, "Guard is off", 100)
+                    except:
+                        pass
+                    stand = False
+                    Gstop = True
+                cmdex = True
+                continue
+
+            if T[0] == "/id" and not T[0] in blkl:
+                if len(T) > 1:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                sub.send_message(ACHAT, "chatId: {}\n\ncomId: {}".format(ACHAT, COMM))
+                cmdex = True
+                continue
+            if T[0] == "/eval" and not T[0] in blkl:
+                if len(T) == 1:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                expp = ""
+                for i in T[1:]:
+                    expp += i
+                try:
+                    expp = inum.inum(expp)
+                    sub.send_message(ACHAT, str(expp))
+                except:
+                    sub.send_message(ACHAT, "An error ocurred during the operation.")
+                    continue
+                cmdex = True
+                continue
+            if T[0] == "/teach" and not T[0] in blkl:
+                if len(T) > 3:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if len(T) < 3:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                if T[1] == "!":
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                T[1] = T[1].replace('"', '')
+                T[2] = T[2].replace('"', '')
+                if T[2].startswith("/di"):
+                    sub.send_message(ACHAT,"Using /di on custom commands is not allowed")
+                    continue
+                if T[2].startswith("!"):
+                    sub.send_message(ACHAT,"Using ! on custom commands is not allowed")
+                    continue
+                custom[T[1]] = T[2]
+                F.seek(0);F.truncate()
+                F.write(json.dumps(custom, indent=4))
+                FCP = open("custom.cp", "w+");FCP.write(json.dumps(custom,indent=4))
+                cmdex = True
+                continue
+
+            if T[0] == "/stop" and not T[0] in blkl:
+                try:
+                    sub.delete_message(msg.messageId[msg.content.index(i)])
+                except:
+                    pass
+                stop = True
+
+            if T[0] == "/blkl" and msg.author.nickname[msg.content.index(i)] in SU:
+                if len(T) > 3:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if len(T) == 1:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                if T[1] == "list":
+                    print(blkl)
+                    liscu = ""
+                    liscu += "[cb]Black list\n\n"
+                    for e in blkl:
+                        liscu += "{}\n".format(e)
+                    sub.send_message(ACHAT, liscu)
+                if T[1] == "add":
+                    if len(T) == 2:
+                        sub.send_message(ACHAT, excp["lack_of_args"])
+                        continue
+                    blkl.append(T[2])
+                    try:
+                        sub.send_message(ACHAT, "Added {}".format(T[2]), 100)
+                    except:
+                        pass
+                if T[1] == "del":
+                    if len(T) == 2:
+                        sub.send_message(ACHAT, excp["lack_of_args"])
+                        continue
+                    blkl.pop(blkl.index(T[2]))
+                    try:
+                        sub.send_message(ACHAT, "Deleted {}".format(T[2]), 100)
+                    except:
+                        pass
+                cmdex = True
+                continue
+
+        if i.startswith("!") and not "custom" in blkl:
+            print(tokenize(i).full)
+            T = tokenize(i); T = T.full
+            if T[0] == "!list":
+                liscu = "[cb]Custom commands\n\n"
+                for i in custom:
+                    liscu += "{}\n".format(i)
+                sub.send_message(ACHAT, liscu)
+                continue
+            if T[0] == "!del":
+                if len(T) > 2:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if len(T) == 1:
+                    sub.send_message(ACHAT, excp["lack_of_args"])
+                    continue
+                if T[1] in custom:
+                    custom.pop(T[1])
+                    F.seek(0);F.truncate()
+                    F.write(json.dumps(custom, indent=4))
+                    copyfile("custom", "custom.cp")
+                else:
+                    sub.send_message(ACHAT, "Comando inexistente")
+                    continue
+            if T[0] in custom:
+                sub.send_message(ACHAT, custom[T[0]])
+                cmdex = True
+                continue
+
+    if stop == True:
+        break
+    old = msg.content
+    if incycle == 25 and not stand and ACHAT != RCHAT:
+        try:
+            sub.send_message(ACHAT, ">> returned to bots chat", 100)
+        except:
+            pass
+        ACHAT = RCHAT
+    if not cmdex:
+        incycle += 1
+    else:
+        cmdex = False
+        incycle = 0
+
+print("Going offline")
+F.close()
+cli.logout()
+del amino
+exit()
