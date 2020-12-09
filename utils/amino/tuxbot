@@ -28,7 +28,8 @@ from nums import numres
 import json
 import os
 import re
-from shutil import copyfile
+import random
+import search
 
 HackingUtils = "234960818"
 GameDevelopers = "1083667"
@@ -102,10 +103,12 @@ cmdex = False
 
 Gstop = False
 
-SU = ["Darth Venom", "Darth Revan", "Revan"]
+SU = ["83e9eb60-3b0e-4009-8b67-dbe432ddae14", "21cf7113-ab47-4995-b5da-9d6e3f6ba102"]
 
 #translator = Translator()
 
+commands = {"/hello": ["Devuelve un saludo.", "Say"], "/hi": ["Devuelve un saludo.", "Say"], "/help": ["Muestra este mensaje.", "Say"], "/version": ["Muestra la versión del bot.", "Say"], "/di": ["Repite lo que se le pide.", "Say"], "/meme": ["Muestra una plantilla, si no se especifican argumentos muestra un meme aleatorio.", "Entertainment"], "/public_chats": ["Muestra los chats publicos.", "Info"], "/info": ["Revela información de un usuario.", "Info"], "/goto": ["Envía el bot a otro chat.", "Bot"], "/mv": ["Envía el bot a otra comunidad.", "Bot"], "/stand": ["Previene que el bot vuelva al chat de bots.", "Chat"], "/guard": ["Repite los mensajes borrados durante N cantidad de tiempo.", "Chat"], "/id": ["Revela la Id del chat y de la comunidad.", "Chat"], "/eval": ["Evalúa una expresión matemática.", "Utils"], "/teach": ["Enseña un comando y su respuesta al bot.", "Entertainment"], "/trad": ["Traduce una oración a X idioma.", "Utils"], "/langdet": ["Detecta el idioma de una oración.", "Utils"], "/def": ["Busca la definición de un término.", "Utils"], "/stop": ["Termina el proceso.", "Bot"]}
+categs = ["Say", "Chat", "Info", "Utils", "Bot", "Entertainment"]
 blkl = ['/eval'] # blacklist
 
 def intToBool(x: int) -> str:
@@ -248,7 +251,24 @@ Escrito por Darth Venom.""")
                         continue
                     continue
     
-                if T[0] == "/public_chats":
+                if T[0] == " /public_chats":
+                    print(T)
+                    if len(T) > 2:
+                        sub.send_message(ACHAT, excp["too_much_args"])
+                        continue
+                    if len(T) == 2:
+                        print(T[1])
+                        if T[1] == "--fix":
+                            for e in chatI:
+                                try:
+                                    sub.get_chat_messages(e, 2)
+                                except:
+                                    chatI.pop(chatI.index(e))
+                                    chatT.pop(chatI.index(e))
+                            sub.send_message(ACHAT, "Lista de chats corregida.")
+                        else:
+                            sub.send_message(ACHAT, "Opción {} inexistente".format(T[1]))
+                            continue
                     s = ""
                     c = 0
                     for x in chatT:
@@ -420,35 +440,32 @@ while True:
                 cmdex = True
                 continue
             if T[0] == "/help" and not T[0] in blkl:
-                sub.send_message(ACHAT, """[cb]HackingUtils's Bot
-
-[b]Commands
-
-/hello: Devuelve un saludo.
-/hi: Devuelve un saludo.
-/help: Muestra este mensaje.
-/version: Muestra la versión del bot.
-/di [String]: Repite lo que se le pide.
-/meme [plantilla]: Muestra una plantilla, si no se especifican argumentos muestra un meme aleatorio.
-
-/public_chats: Muestra los chats publicos.
-/info [nickname]: Revela información de un usuario.
-/goto [numChat]: Envía el bot a otro chat.
-/mv [comunidad]: Envía el bot a otra comunidad.
-/stand [on|off]: Previene que el bot vuelva al chat de bots.
-/guard [on|off]: Repite los mensajes borrados durante N cantidad de tiempo.
-/id: Revela la Id del chat y de la comunidad.
-
-/eval [expresion]: Evalúa una expresión matemática.
-/teach [command] [answer]: Enseña un comando y su respuesta al bot.
-/trad [idioma] [oración]: Traduce una oración a X idioma.
-/langdet [oración]: Detecta el idioma de una oración.
-
-/def [termino]: Busca la definición de un término.
-
-/poweroff: Termina el proceso.
-
-Escrito por Darth Venom.""")
+                if len(T) == 1:
+                    s = "[cb]HackingUtils's Bot\n\n"
+                    for x in categs:
+                        s += "[b]{}\n".format(x)
+                    s += "\n\nPara más información sobre una categoría, pásala como argumento de /help. Si quieres información sobre todas las categorías, usa la opción --all"
+                    sub.send_message(ACHAT, s)
+                    continue
+                if len(T) > 2:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
+                if T[1] == "--all":
+                    s = "[cb]HackingUtils's Bot\n\n"
+                    for x in categs:
+                        s += "\n[B]{}\n\n".format(x)
+                        for e in commands:
+                            if x == commands[e][1]:
+                                s += "{}: {}\n".format(e, commands[e][0])
+                    s += "Escrito por Darth Venom."
+                    sub.send_message(ACHAT, s)
+                if T[1] in categs:
+                    s = "[cb]HackingUtils's bot\n\n[b]{}\n\n".format(T[1])
+                    for x in commands:
+                        if commands[x][1] == T[1]:
+                            s += "{}: {}\n".format(x, commands[x][0])
+                    s += "\nEscrito por Darth Venom"
+                    sub.send_message(ACHAT, s)
                 cmdex = True
                 continue
 
@@ -471,23 +488,40 @@ Escrito por Darth Venom.""")
                 if len(T) == 1:
                     sub.send_message(ACHAT, excp["lack_of_args"])
                     continue
-                if len(T) > 2:
+                if len(T) > 3:
                     sub.send_message(ACHAT, excp["too_much_args"])
                     continue
                 sub.send_message(ACHAT, T[1].replace('"', ""))
+                if len(T) == 3 and T[2] == "--autodel":
+                    sub.delete_message(ACHAT, msg.messageId[msg.content.index(i)])
                 cmdex = True
                 continue
 
             if T[0] == "/meme" and not T[0] in blkl:
-                if len(T) > 2:
+                if len(T) > 3:
                     sub.send_message(ACHAT, excp["too_much_args"])
                     continue
                 if len(T) == 2:
+                    x=search.search(tokenize(T[1].replace('"', '')).full)
+                    print(x)
+                    if x == "Plantilla no encontrada":
+                        sub.send_message(ACHAT, x)
+                        continue
+                    os.chdir("Meme/Plantillas")
+                    x=open(x, "rb")
+                    sub.send_message(ACHAT, file=x, fileType="image")
+                    x.close()
+                    os.chdir("../..")
+                if len(T) == 3 and T[2] == "--autodel":
+                    sub.delete_message(ACHAT, msg.messageId[msg.content.index(i)], True)
                     continue
                 cmdex = True
                 continue
 
             if T[0] == "/public_chats" and not T[0] in blkl:
+                if len(T) > 1:
+                    sub.send_message(ACHAT, excp["too_much_args"])
+                    continue
                 s = ""
                 c = 0
                 for x in chatT:
@@ -535,10 +569,23 @@ Reputación: {}
                 if not T[1].isdigit():
                     sub.send_message(ACHAT, excp["intbs"])
                     continue
+                ACHATT = ACHAT
                 ACHAT = chatI[int(T[1])]
                 print(ACHAT)
-                sub.join_chat(ACHAT)
-                print("Joined")
+                try:
+                    sub.join_chat(ACHAT)
+                    print("Joined")
+                    sub.delete_message(ACHATT, msg.messageId[msg.content.index(i)], True)
+                    s = "Bot went to {}".format(chatT[int(T[1])])
+                except:
+                    ACHAT = ACHATT
+                    sub.send_message(ACHAT, "Permiso denegado")
+                    chatI.pop(int(T[1]))
+                    chatT.pop(int(T[1]))
+                try:
+                    sub.send_message(ACHATT, s, 100)
+                except:
+                    pass
                 cmdex = True
                 continue
 
@@ -706,12 +753,12 @@ Reputación: {}
 
             if T[0] == "/stop" and not T[0] in blkl:
                 try:
-                    sub.delete_message(msg.messageId[msg.content.index(i)])
+                    sub.delete_message(ACHAT, msg.messageId[msg.content.index(i)], True)
                 except:
                     pass
                 stop = True
 
-            if T[0] == "/blkl" and msg.author.nickname[msg.content.index(i)] in SU:
+            if T[0] == "/blkl" and msg.author.userId[msg.content.index(i)] in SU:
                 if len(T) > 3:
                     sub.send_message(ACHAT, excp["too_much_args"])
                     continue
@@ -766,7 +813,6 @@ Reputación: {}
                     custom.pop(T[1])
                     F.seek(0);F.truncate()
                     F.write(json.dumps(custom, indent=4))
-                    copyfile("custom", "custom.cp")
                 else:
                     sub.send_message(ACHAT, "Comando inexistente")
                     continue
