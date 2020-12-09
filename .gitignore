@@ -3,3 +3,6 @@ custom
 custom.cp
 device.json
 privatewelcome
+
+m.py
+*.pyc
