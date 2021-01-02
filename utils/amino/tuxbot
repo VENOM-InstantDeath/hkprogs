@@ -31,7 +31,7 @@ import os
 import random
 import search
 from mod.help import categs, commands
-from mod.func import chats
+from mod.func import chats, public_chats
 from mod.cmd import params
 
 HackingUtils = "234960818"
@@ -81,7 +81,7 @@ old = []
 stop = False
 version = "2.2.7"
 inum = numres()
-Gstop = False
+Gstop = True
 SU = ["83e9eb60-3b0e-4009-8b67-dbe432ddae14", "21cf7113-ab47-4995-b5da-9d6e3f6ba102"]
 blkl = ['/eval'] # blacklist
 
@@ -89,53 +89,35 @@ chatT, chatI = chats("HackingUtils", COMMS, sub)
 
 SS = object
 
-
-def guard():
-    global sub
-    global ACHAT
-    global Gstop
-    old = [] #size 15
-    print("entering loop:guard")
-
-    while not Gstop:
-        msg = sub.get_chat_messages(ACHAT, 15)
-        if old == msg.content:
-            continue
-        print(msg.content)
-        for i in range(len(msg.content)):
-            if msg.content[i] in old:
-                print("inold")
-                continue
-            if msg.content[i] == None:
-                print("isnone")
-                E = sub.get_message_info(ACHAT, msg.messageId[i])
-                if E.content == "" and E.type == 100:
-                    print("deleted message")
-                    if old[i] == None:
-                        print("Message cannot be restored")
-                        continue
-                    continue
-                if E.content == "" and E.mediaType == 100:
-                    print("Image detected")
-                    continue
-        old = msg.content
-
 ####################################################################################################
+
+LOG = {}
+
+@cli.callbacks.event("on_text_message")
+def on_text_message(data):
+    global LOG
+    if len(LOG) == 50:
+        LOG = {}
+    LOG[data.message.messageId] = data.message.content
+
+@cli.callbacks.event("on_delete_message")
+def on_delete_message(data):
+    if (data.comId == int(COMM)) and (data.message.messageId in LOG) and not Gstop:
+        sub.send_message(data.message.chatId, f"{data.message.author.nickname}:\n{LOG[data.message.messageId]}")
+
+def refresh():
+    while True:
+        sleep(300)
+        cli.socket.close()
+        cli.socket.start()
+        print(refresh)
+
+REFRESH = Thread(target=refresh)
+REFRESH.start()
 
 while True:
     msg = sub.get_chat_messages(ACHAT, 2)
     if old == msg.content:
-        if incycle == 25 and not stand and ACHAT != RCHAT:
-            try:
-                sub.send_message(ACHAT, ">> returned to bots chat", 100)
-            except:
-                pass
-            ACHAT = RCHAT
-        if not cmdex:
-            incycle += 1
-        else:
-            cmdex = False
-            incycle = 0
         continue
 
     for i in msg.content:
@@ -146,8 +128,8 @@ while True:
             continue
 
         if i.startswith("/") and not "builtin" in blkl:
-            print(tokenize(i).full)
-            T = tokenize(i); T = T.full
+            print(tokenize(i))
+            T = tokenize(i)
 
             if T[0] == "/help" and not T[0] in blkl:
                 if len(T) == 1:
@@ -176,14 +158,9 @@ while True:
                             s += "{}: {}\n".format(x, commands[x][0])
                     s += "\nEscrito por Darth Venom"
                     sub.send_message(ACHAT, s)
-                continue
-
-            if T[0] == "/hello" and not T[0] in blkl:
-                x = params(1, 1, sub, T)
-                if x != None:
-                    sub.send_message(ACHAT, x)
-                    continue
-                sub.send_message(ACHAT, "Hello!")
+                if T[1] in commands:
+                    s = "[cb]HackingUtils's bot\n\n[b]{}\n\n{}\n\nEscrito por Darth Venom".format(T[1], commands[T[1]][2])
+                    sub.send_message(ACHAT, s)
                 continue
 
             if T[0] == "/hi" and not T[0] in blkl:
@@ -221,7 +198,7 @@ while True:
                     sub.send_message(ACHAT, x)
                     continue
                 if len(T) == 2:
-                    x=search.search(tokenize(T[1].replace('"', '')).full)
+                    x=search.search(tokenize(T[1]))
                     print(x)
                     if x == "Plantilla no encontrada":
                         sub.send_message(ACHAT, x)
@@ -231,9 +208,24 @@ while True:
                     sub.send_message(ACHAT, file=x, fileType="image")
                     x.close()
                     os.chdir("../..")
+                    if not len(T) == 3:
+                        continue
                 if len(T) == 3 and T[2] == "--autodel":
                     sub.delete_message(ACHAT, msg.messageId[msg.content.index(i)])
                     continue
+
+                os.chdir("Meme")
+                x=[]
+                for e in os.listdir():
+                    if os.path.isdir(e):
+                        continue
+                    x.append(e)
+                x=random.choice(x)
+                x=open(x, "rb")
+                sub.send_message(ACHAT, file=x, fileType="image")
+                x.close()
+                os.chdir("..")
+
                 continue
 
             if T[0] == "/public_chats" and not T[0] in blkl:
@@ -243,7 +235,7 @@ while True:
                     continue
 
                 s = public_chats(chatT)
-                sub.send_message(ACHAT, s)
+                sub.send_message(ACHAT, s[0])
                 continue
 
             if T[0] == "/info" and not T[0] in blkl:
@@ -317,7 +309,7 @@ Reputación: {}
 
                 chatT, chatI = chats(COMM, COMMS, sub1)
                 s = public_chats(chatT)
-                sub.send_message(ACHAT, s)
+                sub.send_message(ACHAT, s[0])
 
                 sub.send_message(ACHAT, "Selecciona un chat por su número.")
                 old1 = []
@@ -342,7 +334,7 @@ Reputación: {}
                                     break
                                 sub.send_message(ACHAT, "Numeric argument expected, got string.")
                                 continue
-                            if int(i) >= c:
+                            if int(i) >= s[1]:
                                 sub.send_message(ACHAT, "IndexError. Intenta nuevamente.")
                                 continue
                             sub.send_message(ACHAT, "Selected {}".format(i))
@@ -372,10 +364,7 @@ Reputación: {}
                         sub.send_message(ACHAT, "Guard is on", 100)
                     except:
                         pass
-                    stand = True
                     Gstop = False
-                    GUARD = Thread(target=guard)
-                    GUARD.start()
 
                 if T[1] == "off":
 
@@ -383,7 +372,6 @@ Reputación: {}
                         sub.send_message(ACHAT, "Guard is off", 100)
                     except:
                         pass
-                    stand = False
                     Gstop = True
                 continue
 
@@ -405,8 +393,8 @@ Reputación: {}
                     continue
 
                 expp = ""
-                for i in T[1:]:
-                    expp += i
+                for x in T[1:]:
+                    expp += x
                 try:
                     expp = inum.inum(expp)
                     sub.send_message(ACHAT, str(expp))
@@ -417,26 +405,37 @@ Reputación: {}
 
             if T[0] == "/teach" and not T[0] in blkl:
 
-                x = params(3, 3, sub, T)
+                x = params(4, 5, sub, T)
                 if x != None:
                     sub.send_message(ACHAT, x)
                     continue
-
-                if T[1] == "!":
-                    sub.send_message(ACHAT, excp["lack_of_args"])
-                    continue
                 T[1] = T[1].replace('"', '')
-                T[2] = T[2].replace('"', '')
-                if T[2].startswith("/di"):
-                    sub.send_message(ACHAT,"Using /di on custom commands is not allowed")
+                T[3] = T[3].replace('"', '')
+                if len(T) == 5 and T[4] == "--private" and T[2] == "=":
+                    if T[3].startswith("/di"):
+                        sub.send_message(ACHAT,"Using /di on custom commands is not allowed")
+                        continue
+                    if T[3].startswith("."):
+                        sub.send_message(ACHAT,"Using . at start on custom commands is not allowed")
+                        continue
+                    custom[T[1]] = [T[3], "private", msg.author.userId[msg.content.index(i)]]
+                    F.seek(0);F.truncate()
+                    F.write(json.dumps(custom, indent=4))
+                    FCP = open("custom.cp", "w+");FCP.write(json.dumps(custom,indent=4));FCP.close()
                     continue
-                if T[2].startswith("!"):
-                    sub.send_message(ACHAT,"Using ! on custom commands is not allowed")
-                    continue
-                custom[T[1]] = T[2]
-                F.seek(0);F.truncate()
-                F.write(json.dumps(custom, indent=4))
-                FCP = open("custom.cp", "w+");FCP.write(json.dumps(custom,indent=4))
+                if T[2] == "=":
+                    if T[3].startswith("/di"):
+                        sub.send_message(ACHAT,"Using /di on custom commands is not allowed")
+                        continue
+                    if T[3].startswith("."):
+                        sub.send_message(ACHAT,"Using . at start on custom commands is not allowed")
+                        continue
+                    custom[T[1]] = [T[3], "public"]
+                    F.seek(0);F.truncate()
+                    F.write(json.dumps(custom, indent=4))
+                    FCP = open("custom.cp", "w+");FCP.write(json.dumps(custom,indent=4))
+                else:
+                    sub.send_message(ACHAT, "Wrong Syntax.")
                 continue
 
             if T[0] == "/stop" and not T[0] in blkl:
@@ -450,7 +449,7 @@ Reputación: {}
 
             if T[0] == "/blkl" and msg.author.userId[msg.content.index(i)] in SU:
 
-                x = params(2, 2, sub, T)
+                x = params(2, 3, sub, T)
                 if x != None:
                     sub.send_message(ACHAT, x)
                     continue
@@ -487,24 +486,26 @@ Reputación: {}
                         pass
                 continue
 
-        if i.startswith("!") and not "custom" in blkl:
-            print(tokenize(i).full)
-            T = tokenize(i); T = T.full
+        if i.startswith(".") and not "custom" in blkl:
+            print(tokenize(i))
+            T = tokenize(i)
 
-            if T[0] == "!list":
+            if T[0] == ".list":
 
                 liscu = "[cb]Custom commands\n\n"
-                for i in custom:
-                    liscu += "{}\n".format(i)
+                for x in custom:
+                    liscu += "{}\n".format(x)
                 sub.send_message(ACHAT, liscu)
                 continue
 
-            if T[0] == "!del":
+            if T[0] == ".del":
 
                 x = params(2, 2, sub, T)
                 if x != None:
                     sub.send_message(ACHAT, x)
                     continue
+                
+                T[1].replace('"', '')
 
                 if T[1] in custom:
                     custom.pop(T[1])
@@ -514,9 +515,9 @@ Reputación: {}
                     sub.send_message(ACHAT, "Comando inexistente")
                     continue
 
-            if T[0] in custom:
+            if i[1:] in custom:
 
-                sub.send_message(ACHAT, custom[T[0]])
+                sub.send_message(ACHAT, custom[i[1:]][0])
                 continue
 
     if stop == True:

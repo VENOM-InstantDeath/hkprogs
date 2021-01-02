@@ -9,5 +9,5 @@ def public_chats(chatT):
     for x in chatT:
         s += "[{}]{}\n".format(c, x)
         c += 1
-    return s
+    return (s, c)
 
